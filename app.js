@@ -1,14 +1,78 @@
 /**
  * THE HILL SERENITY - LUXURY ARCHITECTURE & BOUTIQUE SANCTUARY
  * React 18 Application with GSAP ScrollTrigger, Lenis Smooth Scroll, Three.js 3D Model,
- * and Kling AI Background Video Integration.
+ * and Dynamic Seasonal Background Templates (Kling AI Video, Mist, Spring, Monsoon, Autumn, Winter).
  */
 
 const { useState, useEffect, useRef } = React;
 
 // ==========================================================================
-// 1. DATA COLLECTIONS
+// 1. DATA COLLECTIONS & SEASONAL BACKGROUND TEMPLATES
 // ==========================================================================
+
+const BACKGROUND_TEMPLATES = {
+  video: {
+    id: "video",
+    name: "Kling AI Video",
+    icon: "📹",
+    type: "video",
+    src: "assets/kling-ai-property-cream-redroof.mp4",
+    poster: "assets/hero-the-hill-serenity-1080p.jpg",
+    desc: "1080p Continuous Looping Motion with Drifting Mountain Mist"
+  },
+  mist: {
+    id: "mist",
+    name: "Atmospheric Mist",
+    icon: "☁️",
+    type: "image",
+    src: "assets/hero-the-hill-serenity-1080p.jpg",
+    desc: "Signature Twilight View with Glowing Windows & Forest Slopes"
+  },
+  spring: {
+    id: "spring",
+    name: "Spring",
+    icon: "🌸",
+    type: "image",
+    src: "assets/bg-season-spring.jpg",
+    temp: "16°C – 26°C",
+    desc: "Verdant Pine Canopies, Apple & Plum Blossoms, Pleasant Mountain Skies"
+  },
+  monsoon: {
+    id: "monsoon",
+    name: "Monsoon",
+    icon: "🌧️",
+    type: "image",
+    src: "assets/bg-season-monsoon.jpg",
+    temp: "18°C – 24°C",
+    desc: "Rushing Kalsa River, Atmospheric Valley Clouds & Deep Emerald Greenery"
+  },
+  autumn: {
+    id: "autumn",
+    name: "Autumn",
+    icon: "🍂",
+    type: "image",
+    src: "assets/bg-season-autumn.jpg",
+    temp: "12°C – 22°C",
+    desc: "Himalayan Golden Hour Sunset, Amber Ridge Foliage & Crystal Peak Vistas"
+  },
+  winter: {
+    id: "winter",
+    name: "Winter",
+    icon: "❄️",
+    type: "image",
+    src: "assets/bg-season-winter.jpg",
+    temp: "2°C – 15°C",
+    desc: "Snowfall on Crimson Red Alpine Gables, Frosty Pines & Fireside Retreat"
+  },
+  collage: {
+    id: "collage",
+    name: "4-Season Collage",
+    icon: "⛶",
+    type: "image",
+    src: "assets/seasons-collage-4k.jpg",
+    desc: "Quad-Perspective Matrix of All 4 Kumaon Seasons"
+  }
+};
 
 const PROCESS_STAGES = [
   {
@@ -52,7 +116,7 @@ const PROJECTS = [
     category: "Boutique Homestay",
     location: "Chafi, South Gola Range, Nainital",
     specs: "3 Storeys • 4 Gables • 10 Bespoke Suites",
-    image: "assets/property-cream-redroof-masterpiece.jpg",
+    image: "assets/hero-the-hill-serenity-1080p.jpg",
     description: "Our signature mountain retreat designed for spiritual seekers and nature immersion. Built with cream stucco, red alpine roofs, and private curved verandas 12 km from Kainchi Dham."
   },
   {
@@ -89,7 +153,6 @@ const PROJECTS = [
 // ==========================================================================
 function Interactive3DViewer() {
   const mountRef = useRef(null);
-  const [lightMode, setLightMode] = useState("golden");
 
   useEffect(() => {
     const container = mountRef.current;
@@ -98,7 +161,6 @@ function Interactive3DViewer() {
     const width = container.clientWidth;
     const height = container.clientHeight;
 
-    // Scene, Camera, Renderer
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x0a120e);
     scene.fog = new THREE.FogExp2(0x0a120e, 0.035);
@@ -113,7 +175,6 @@ function Interactive3DViewer() {
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     container.appendChild(renderer.domElement);
 
-    // Orbit Controls (Simulated with Mouse Drag for Zero Friction)
     let isDragging = false;
     let prevMouseX = 0;
     let prevMouseY = 0;
@@ -140,7 +201,6 @@ function Interactive3DViewer() {
     window.addEventListener("mousemove", onMouseMove);
     window.addEventListener("mouseup", onMouseUp);
 
-    // Touch support for mobile
     const onTouchStart = (e) => {
       if (e.touches.length === 1) {
         isDragging = true;
@@ -163,8 +223,7 @@ function Interactive3DViewer() {
     window.addEventListener("touchmove", onTouchMove, { passive: true });
     window.addEventListener("touchend", onTouchEnd);
 
-    // Lights
-    const ambientLight = new THREE.AmbientLight(0xf5efe3, 0.6);
+    const ambientLight = new THREE.AmbientLight(0xf5efe3, 0.65);
     scene.add(ambientLight);
 
     const sunLight = new THREE.DirectionalLight(0xffb266, 1.4);
@@ -172,7 +231,6 @@ function Interactive3DViewer() {
     sunLight.castShadow = true;
     scene.add(sunLight);
 
-    // Ground Plane (Mountain Grass & Soil)
     const groundGeo = new THREE.CylinderGeometry(18, 18, 0.4, 32);
     const groundMat = new THREE.MeshStandardMaterial({ color: 0x182b20, roughness: 0.9 });
     const ground = new THREE.Mesh(groundGeo, groundMat);
@@ -180,10 +238,9 @@ function Interactive3DViewer() {
     ground.receiveShadow = true;
     scene.add(ground);
 
-    // Group for the 3D Building
     const buildingGroup = new THREE.Group();
 
-    // 1. Main Cream Stucco Building Body (3 Storeys)
+    // 1. Cream Stucco Body
     const creamMat = new THREE.MeshStandardMaterial({
       color: 0xf5efe3,
       roughness: 0.7,
@@ -197,7 +254,7 @@ function Interactive3DViewer() {
     bodyMesh.receiveShadow = true;
     buildingGroup.add(bodyMesh);
 
-    // 2. The 4 Alpine Gabled Roofs in Crimson Terracotta Red (#A83232)
+    // 2. 4 Crimson Red Alpine Gables
     const roofRedMat = new THREE.MeshStandardMaterial({
       color: 0xa83232,
       roughness: 0.45,
@@ -215,7 +272,7 @@ function Interactive3DViewer() {
       buildingGroup.add(gable);
     }
 
-    // 3. Ground Level Drive-In Portico (Left side entrance)
+    // 3. Portico & Sun Terrace
     const porticoMat = new THREE.MeshStandardMaterial({ color: 0x243b30, roughness: 0.6 });
     const porticoGeo = new THREE.BoxGeometry(4.5, 1.8, 3.2);
     const portico = new THREE.Mesh(porticoGeo, porticoMat);
@@ -223,27 +280,20 @@ function Interactive3DViewer() {
     portico.castShadow = true;
     buildingGroup.add(portico);
 
-    // Second-Floor Sun Terrace Deck (On top of Portico) with Umbrella
     const deckMat = new THREE.MeshStandardMaterial({ color: 0xdcd4c4, roughness: 0.5 });
-    const deckGeo = new THREE.BoxGeometry(4.5, 0.15, 3.2);
-    const deck = new THREE.Mesh(deckGeo, deckMat);
+    const deck = new THREE.Mesh(new THREE.BoxGeometry(4.5, 0.15, 3.2), deckMat);
     deck.position.set(-3.2, 1.85, 3.2);
     buildingGroup.add(deck);
 
-    // Umbrella
-    const poleGeo = new THREE.CylinderGeometry(0.04, 0.04, 1.2);
-    const poleMat = new THREE.MeshStandardMaterial({ color: 0x333333 });
-    const pole = new THREE.Mesh(poleGeo, poleMat);
+    const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 1.2), new THREE.MeshStandardMaterial({ color: 0x333333 }));
     pole.position.set(-3.2, 2.45, 3.2);
     buildingGroup.add(pole);
 
-    const canopyGeo = new THREE.ConeGeometry(0.9, 0.4, 8);
-    const canopyMat = new THREE.MeshStandardMaterial({ color: 0xa83232 });
-    const canopy = new THREE.Mesh(canopyGeo, canopyMat);
+    const canopy = new THREE.Mesh(new THREE.ConeGeometry(0.9, 0.4, 8), new THREE.MeshStandardMaterial({ color: 0xa83232 }));
     canopy.position.set(-3.2, 3.0, 3.2);
     buildingGroup.add(canopy);
 
-    // 4. Glowing Windows & Semicircular Balconies
+    // 4. Glowing Windows & Curved Balconies
     const glowWindowMat = new THREE.MeshStandardMaterial({
       color: 0xffa034,
       emissive: 0xff8c1a,
@@ -253,12 +303,10 @@ function Interactive3DViewer() {
 
     for (let f = 1; f <= 2; f++) {
       for (let b = 0; b < 3; b++) {
-        // Window
         const win = new THREE.Mesh(new THREE.PlaneGeometry(1.2, 1.3), glowWindowMat);
         win.position.set(-2 + b * 2.2, f * 1.5 + 0.8, 2.76);
         buildingGroup.add(win);
 
-        // Curved Balcony
         const balGeo = new THREE.CylinderGeometry(0.9, 0.9, 0.45, 16, 1, false, 0, Math.PI);
         const balMat = new THREE.MeshStandardMaterial({ color: 0x1f2421, metalness: 0.8 });
         const bal = new THREE.Mesh(balGeo, balMat);
@@ -268,23 +316,21 @@ function Interactive3DViewer() {
       }
     }
 
-    // 5. Pine Trees around the Property
-    const treeTrunkMat = new THREE.MeshStandardMaterial({ color: 0x3d2817 });
-    const pineLeavesMat = new THREE.MeshStandardMaterial({ color: 0x1c3a2b, roughness: 0.8 });
-
+    // 5. Surrounding Pines
     const treePositions = [
       [-6, 0, -4], [-7, 0, 1], [-5.5, 0, -6],
       [6, 0, -3], [7.5, 0, 2], [6.5, 0, -6]
     ];
+    const trunkMat = new THREE.MeshStandardMaterial({ color: 0x3d2817 });
+    const pineMat = new THREE.MeshStandardMaterial({ color: 0x1c3a2b, roughness: 0.8 });
 
     treePositions.forEach(([tx, ty, tz]) => {
       const tree = new THREE.Group();
-      const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.16, 1.2), treeTrunkMat);
+      const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.16, 1.2), trunkMat);
       trunk.position.y = 0.6;
       tree.add(trunk);
-
       for (let i = 0; i < 3; i++) {
-        const cone = new THREE.Mesh(new THREE.ConeGeometry(1.1 - i * 0.25, 1.4, 6), pineLeavesMat);
+        const cone = new THREE.Mesh(new THREE.ConeGeometry(1.1 - i * 0.25, 1.4, 6), pineMat);
         cone.position.y = 1.3 + i * 0.8;
         cone.castShadow = true;
         tree.add(cone);
@@ -295,28 +341,21 @@ function Interactive3DViewer() {
 
     scene.add(buildingGroup);
 
-    // Animation Loop
     let animId;
     const animate = () => {
       animId = requestAnimationFrame(animate);
-
-      // Auto rotation when idle
       if (!isDragging) {
         rotY += 0.002;
       }
-
-      // Camera position from spherical coordinates
       const radius = 17;
       camera.position.x = radius * Math.sin(rotY) * Math.cos(rotX);
       camera.position.y = Math.max(2, radius * Math.sin(rotX) + 3);
       camera.position.z = radius * Math.cos(rotY) * Math.cos(rotX);
       camera.lookAt(0, 2.2, 0);
-
       renderer.render(scene, camera);
     };
     animate();
 
-    // Handle Resize
     const handleResize = () => {
       if (!container) return;
       const w = container.clientWidth;
@@ -356,6 +395,7 @@ function Interactive3DViewer() {
 // ==========================================================================
 function ArchitectureApp() {
   const [activeStage, setActiveStage] = useState(0);
+  const [bgTemplateKey, setBgTemplateKey] = useState("video");
   const [isVideoPlaying, setIsVideoPlaying] = useState(true);
   const [isAudioPlaying, setIsAudioPlaying] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
@@ -368,14 +408,12 @@ function ArchitectureApp() {
 
   // Initialize Lenis Smooth Scroll and GSAP ScrollTrigger
   useEffect(() => {
-    // Lenis setup
     let lenis;
     if (typeof Lenis !== "undefined") {
       lenis = new Lenis({
         duration: 1.2,
         easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
         orientation: "vertical",
-        gestureOrientation: "vertical",
         smoothWheel: true
       });
 
@@ -386,11 +424,9 @@ function ArchitectureApp() {
       requestAnimationFrame(raf);
     }
 
-    // GSAP ScrollTrigger Animations
     if (typeof gsap !== "undefined" && typeof ScrollTrigger !== "undefined") {
       gsap.registerPlugin(ScrollTrigger);
 
-      // Scroll Progress Indicator
       gsap.to(".scroll-progress-line", {
         width: "100%",
         ease: "none",
@@ -402,7 +438,6 @@ function ArchitectureApp() {
         }
       });
 
-      // Hero Title Staggered Reveal
       gsap.from(".hero-anim-title", {
         y: 60,
         opacity: 0,
@@ -411,7 +446,6 @@ function ArchitectureApp() {
         stagger: 0.2
       });
 
-      // Vision Image Zoom on Scroll
       gsap.to(".vision-zoom-img", {
         scale: 1.15,
         ease: "none",
@@ -422,20 +456,6 @@ function ArchitectureApp() {
           scrub: true
         }
       });
-
-      // Parallax Cards
-      gsap.utils.toArray(".parallax-card").forEach((card) => {
-        gsap.to(card, {
-          y: -40,
-          ease: "none",
-          scrollTrigger: {
-            trigger: card,
-            start: "top bottom",
-            end: "bottom top",
-            scrub: true
-          }
-        });
-      });
     }
 
     return () => {
@@ -444,7 +464,6 @@ function ArchitectureApp() {
     };
   }, []);
 
-  // Ambient Video Toggle
   const toggleVideo = () => {
     if (!videoRef.current) return;
     if (videoRef.current.paused) {
@@ -456,7 +475,6 @@ function ArchitectureApp() {
     }
   };
 
-  // Mountain Breeze Audio Synthesizer (Web Audio API)
   const toggleAudio = () => {
     if (!isAudioPlaying) {
       try {
@@ -531,46 +549,72 @@ function ArchitectureApp() {
     window.open(waUrl, "_blank");
   };
 
+  const activeTemplate = BACKGROUND_TEMPLATES[bgTemplateKey] || BACKGROUND_TEMPLATES.video;
+
   return (
     <div className="relative min-h-screen text-cream">
       {/* Scroll Progress Indicator */}
       <div className="scroll-progress-line"></div>
 
-      {/* FIXED KLING-AI BACKGROUND VIDEO (CREAM WALLS & RED ROOF PROPERTY) */}
+      {/* DYNAMIC BACKGROUND LAYER (KLING AI VIDEO / MIST / SPRING / MONSOON / AUTUMN / WINTER) */}
       <div className="cinema-bg-container">
-        <video
-          ref={videoRef}
-          className="cinema-bg-video"
-          autoPlay
-          muted
-          loop
-          playsInline
-          poster="assets/property-cream-redroof-masterpiece.jpg"
-        >
-          <source src="assets/kling-ai-property-cream-redroof.mp4" type="video/mp4" />
-          <source src="assets/mountain-greenery-loop.mp4" type="video/mp4" />
-        </video>
+        {activeTemplate.type === "video" ? (
+          <video
+            ref={videoRef}
+            key={activeTemplate.src}
+            className="cinema-bg-video"
+            autoPlay
+            muted
+            loop
+            playsInline
+            poster={activeTemplate.poster}
+          >
+            <source src={activeTemplate.src} type="video/mp4" />
+          </video>
+        ) : (
+          <img
+            src={activeTemplate.src}
+            alt={activeTemplate.name}
+            className="cinema-bg-image"
+          />
+        )}
         <div className="cinema-bg-overlay"></div>
       </div>
 
-      {/* FLOATING AMBIENT CONTROLLER */}
+      {/* FLOATING AMBIENT & BACKGROUND TEMPLATE CONTROLLER */}
       <aside className="ambient-pill-ctrl">
-        <button
-          onClick={toggleVideo}
-          className="flex items-center gap-1.5 text-xs text-gold hover:text-white transition"
-          title="Toggle Kling AI Cinematic Video Motion"
-        >
-          <span>{isVideoPlaying ? "⏸" : "▶"}</span>
-          <span>{isVideoPlaying ? "Motion" : "Paused"}</span>
-        </button>
+        <div className="flex items-center gap-1.5 overflow-x-auto max-w-xs md:max-w-none">
+          {Object.keys(BACKGROUND_TEMPLATES).map((key) => {
+            const tmpl = BACKGROUND_TEMPLATES[key];
+            const isActive = bgTemplateKey === key;
+            return (
+              <button
+                key={key}
+                onClick={() => setBgTemplateKey(key)}
+                className={`season-template-pill ${isActive ? "active" : ""}`}
+                title={`Switch Background to ${tmpl.name}`}
+              >
+                <span>{tmpl.icon}</span> <span>{tmpl.name}</span>
+              </button>
+            );
+          })}
+        </div>
         <div className="w-px h-3 bg-white/20"></div>
+        {activeTemplate.type === "video" && (
+          <button
+            onClick={toggleVideo}
+            className="text-xs text-gold hover:text-white transition px-1"
+            title="Toggle Video Motion"
+          >
+            {isVideoPlaying ? "⏸" : "▶"}
+          </button>
+        )}
         <button
           onClick={toggleAudio}
-          className="flex items-center gap-1.5 text-xs text-gold hover:text-white transition"
-          title="Toggle Real-Time Himalayan Mountain Breeze Sound"
+          className="text-xs text-gold hover:text-white transition px-1"
+          title="Toggle Himalayan Mountain Wind Sound"
         >
-          <span>{isAudioPlaying ? "🔊" : "🔇"}</span>
-          <span>{isAudioPlaying ? "Pine Audio" : "Audio Off"}</span>
+          {isAudioPlaying ? "🔊" : "🔇"}
         </button>
       </aside>
 
@@ -593,6 +637,7 @@ function ArchitectureApp() {
 
           <nav className="hidden md:flex items-center gap-8 text-xs font-semibold uppercase tracking-[0.18em]">
             <a href="#vision" className="hover:text-gold transition">Our Vision</a>
+            <a href="#seasons" className="hover:text-gold transition">4 Seasons</a>
             <a href="#process" className="hover:text-gold transition">The Process</a>
             <a href="#model3d" className="hover:text-gold transition">3D Model</a>
             <a href="#projects" className="hover:text-gold transition">Projects</a>
@@ -607,9 +652,9 @@ function ArchitectureApp() {
       </header>
 
       {/* ==========================================================================
-          SECTION 1: HERO
+          SECTION 1: HERO (FEATURING OFFICIAL CREAM & RED ROOF RENDER)
           ========================================================================== */}
-      <section className="relative min-h-screen flex flex-col justify-center px-6 pt-24 z-10">
+      <section className="relative min-h-screen flex flex-col justify-center px-6 pt-28 z-10">
         <div className="max-w-5xl mx-auto text-center">
           <div className="eyebrow-line mb-6 hero-anim-title">
             Bespoke Himalayan Architecture • Chafi, Nainital
@@ -620,9 +665,26 @@ function ArchitectureApp() {
             <span className="italic text-gold">& Cedar Sings.</span>
           </h1>
 
-          <p className="max-w-2xl mx-auto text-base md:text-lg text-cream/80 font-light leading-relaxed mb-10 hero-anim-title">
+          <p className="max-w-2xl mx-auto text-base md:text-lg text-cream/80 font-light leading-relaxed mb-8 hero-anim-title">
             An award-winning 3-storey alpine sanctuary crafted with native river stone, warm cream limestone stucco, and four steep crimson red gables overlooking the South Gola Range near Kainchi Dham.
           </p>
+
+          {/* Background Template Indicator on Hero */}
+          <div className="flex flex-wrap items-center justify-center gap-2 mb-10 hero-anim-title">
+            <span className="text-xs uppercase tracking-widest text-gold-light mr-2">Background Template:</span>
+            {["video", "mist", "spring", "monsoon", "autumn", "winter"].map((key) => {
+              const tmpl = BACKGROUND_TEMPLATES[key];
+              return (
+                <button
+                  key={key}
+                  onClick={() => setBgTemplateKey(key)}
+                  className={`season-template-pill ${bgTemplateKey === key ? "active" : ""}`}
+                >
+                  {tmpl.icon} {tmpl.name}
+                </button>
+              );
+            })}
+          </div>
 
           <div className="flex flex-wrap items-center justify-center gap-4 hero-anim-title">
             <a href="#process" className="btn-gold-glow">
@@ -640,7 +702,7 @@ function ArchitectureApp() {
             <div>Elevation: <span className="text-gold">5,400 FT</span></div>
             <div>Coordinates: <span className="text-gold">29.3735° N, 79.5804° E</span></div>
             <div>Proximity: <span className="text-gold">12 KM to Kainchi Dham</span></div>
-            <div>Architecture: <span className="text-gold">Cream Stucco • Red Roof</span></div>
+            <div>Architecture: <span className="text-gold">Cream Stucco • Crimson Red Roof</span></div>
           </div>
         </div>
       </section>
@@ -679,15 +741,121 @@ function ArchitectureApp() {
               </div>
             </div>
 
-            {/* Cinematic Photography Frame */}
             <div className="relative rounded-sm overflow-hidden border border-border shadow-2xl">
               <img
-                src="assets/property-cream-redroof-masterpiece.jpg"
+                src="assets/hero-the-hill-serenity-1080p.jpg"
                 alt="The Hill Serenity in Cream Colour and Red Roof at Golden Hour"
                 className="w-full h-[520px] object-cover vision-zoom-img"
               />
               <div className="absolute bottom-4 left-4 bg-obsidian/85 backdrop-blur-md px-4 py-2 border border-border text-xs uppercase tracking-widest text-gold">
-                The Hill Serenity • Chafi Valley Elevation
+                The Hill Serenity • Official Architectural Facade
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ==========================================================================
+          SECTION 2B: SANCTUARY IN FOUR SEASONS (BACKGROUND TEMPLATES SHOWCASE)
+          ========================================================================== */}
+      <section id="seasons" className="relative py-32 px-6 z-10 bg-obsidian/95 border-b border-border/40">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <div className="eyebrow-line mb-4">Year-Round Mountain Sanctuary</div>
+            <h2 className="font-serif text-4xl md:text-6xl font-normal leading-tight mb-4">
+              A Living Canvas Across Four Seasons
+            </h2>
+            <p className="text-cream/75 text-base">
+              Click any seasonal atmosphere below to immediately transform the live website background into that season's alpine light and climate.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {/* Spring */}
+            <div
+              className={`season-card ${bgTemplateKey === "spring" ? "current-active" : ""}`}
+              onClick={() => setBgTemplateKey("spring")}
+            >
+              <div className="overflow-hidden relative">
+                <img src="assets/bg-season-spring.jpg" alt="Spring at The Hill Serenity" className="season-card-img" />
+                <span className="absolute top-3 left-3 bg-obsidian/80 backdrop-blur-md text-[10px] uppercase font-bold text-gold px-2.5 py-1 rounded">
+                  🌸 Spring (16°C – 26°C)
+                </span>
+              </div>
+              <div className="p-6">
+                <h3 className="font-serif text-xl text-cream mb-2">Verdant Pines & Blossoms</h3>
+                <p className="text-cream/70 text-xs leading-relaxed mb-4">
+                  Respite from plain heat. Sunny mountain skies, blooming apple terraces, and crisp morning ridge trails.
+                </p>
+                <button className="text-xs uppercase tracking-wider text-gold font-bold hover:text-white transition">
+                  {bgTemplateKey === "spring" ? "✓ Currently Active Background" : "Apply as Background →"}
+                </button>
+              </div>
+            </div>
+
+            {/* Monsoon */}
+            <div
+              className={`season-card ${bgTemplateKey === "monsoon" ? "current-active" : ""}`}
+              onClick={() => setBgTemplateKey("monsoon")}
+            >
+              <div className="overflow-hidden relative">
+                <img src="assets/bg-season-monsoon.jpg" alt="Monsoon at The Hill Serenity" className="season-card-img" />
+                <span className="absolute top-3 left-3 bg-obsidian/80 backdrop-blur-md text-[10px] uppercase font-bold text-gold px-2.5 py-1 rounded">
+                  🌧️ Monsoon (18°C – 24°C)
+                </span>
+              </div>
+              <div className="p-6">
+                <h3 className="font-serif text-xl text-cream mb-2">Emerald Mist & River Waters</h3>
+                <p className="text-cream/70 text-xs leading-relaxed mb-4">
+                  Dramatic valley clouds rolling over the red gables. Rushing Kalsa river sounds and steaming Kumaoni herbal tea.
+                </p>
+                <button className="text-xs uppercase tracking-wider text-gold font-bold hover:text-white transition">
+                  {bgTemplateKey === "monsoon" ? "✓ Currently Active Background" : "Apply as Background →"}
+                </button>
+              </div>
+            </div>
+
+            {/* Autumn */}
+            <div
+              className={`season-card ${bgTemplateKey === "autumn" ? "current-active" : ""}`}
+              onClick={() => setBgTemplateKey("autumn")}
+            >
+              <div className="overflow-hidden relative">
+                <img src="assets/bg-season-autumn.jpg" alt="Autumn at The Hill Serenity" className="season-card-img" />
+                <span className="absolute top-3 left-3 bg-obsidian/80 backdrop-blur-md text-[10px] uppercase font-bold text-gold px-2.5 py-1 rounded">
+                  🍂 Autumn (12°C – 22°C)
+                </span>
+              </div>
+              <div className="p-6">
+                <h3 className="font-serif text-xl text-cream mb-2">Himalayan Golden Hour</h3>
+                <p className="text-cream/70 text-xs leading-relaxed mb-4">
+                  Amber foliage and crystalline snow-peak vistas. Ideal time for Kainchi Dham pilgrimage and outdoor dining.
+                </p>
+                <button className="text-xs uppercase tracking-wider text-gold font-bold hover:text-white transition">
+                  {bgTemplateKey === "autumn" ? "✓ Currently Active Background" : "Apply as Background →"}
+                </button>
+              </div>
+            </div>
+
+            {/* Winter */}
+            <div
+              className={`season-card ${bgTemplateKey === "winter" ? "current-active" : ""}`}
+              onClick={() => setBgTemplateKey("winter")}
+            >
+              <div className="overflow-hidden relative">
+                <img src="assets/bg-season-winter.jpg" alt="Winter at The Hill Serenity" className="season-card-img" />
+                <span className="absolute top-3 left-3 bg-obsidian/80 backdrop-blur-md text-[10px] uppercase font-bold text-gold px-2.5 py-1 rounded">
+                  ❄️ Winter (2°C – 15°C)
+                </span>
+              </div>
+              <div className="p-6">
+                <h3 className="font-serif text-xl text-cream mb-2">Snow-Capped Red Roofs</h3>
+                <p className="text-cream/70 text-xs leading-relaxed mb-4">
+                  Snow dust on alpine peaks, crackling wood-burning fireplaces, underfloor heated stone suites, and hot spiced cider.
+                </p>
+                <button className="text-xs uppercase tracking-wider text-gold font-bold hover:text-white transition">
+                  {bgTemplateKey === "winter" ? "✓ Currently Active Background" : "Apply as Background →"}
+                </button>
               </div>
             </div>
           </div>
@@ -696,7 +864,6 @@ function ArchitectureApp() {
 
       {/* ==========================================================================
           SECTION 3: OUR PROCESS (BRICK BY BRICK, FLOOR BY FLOOR)
-          Inspired by MATTXWEBB viral construction evolution
           ========================================================================== */}
       <section id="process" className="relative py-32 px-6 z-10 bg-obsidian/95">
         <div className="max-w-7xl mx-auto">
@@ -709,7 +876,6 @@ function ArchitectureApp() {
               Follow the construction metamorphosis from mountain earthwork to structural timber gables, handcrafted cedar interiors, and the completed glowing sanctuary.
             </p>
 
-            {/* Interactive Stage Selector Buttons */}
             <div className="flex flex-wrap items-center justify-center gap-2 mt-8">
               {PROCESS_STAGES.map((st, i) => (
                 <button
@@ -723,7 +889,6 @@ function ArchitectureApp() {
             </div>
           </div>
 
-          {/* Active Stage Display Card */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center glass-panel p-8 md:p-12 rounded-sm">
             <div className="lg:col-span-7">
               <div className="process-stage-visual">
@@ -904,15 +1069,15 @@ function ArchitectureApp() {
             <div className="lg:col-span-6 grid grid-cols-2 gap-4">
               <div className="rounded border border-border overflow-hidden h-72">
                 <img
-                  src="assets/architecture-isometric-3d.jpg"
-                  alt="3D Architectural Model"
+                  src="assets/seasons-collage-4k.jpg"
+                  alt="4 Seasons of The Hill Serenity"
                   className="w-full h-full object-cover"
                 />
               </div>
               <div className="rounded border border-border overflow-hidden h-72 mt-8">
                 <img
-                  src="assets/architecture-elevation-front.jpg"
-                  alt="Front Elevation"
+                  src="assets/hero-the-hill-serenity-1080p.jpg"
+                  alt="Official Elevation"
                   className="w-full h-full object-cover"
                 />
               </div>
@@ -1050,7 +1215,7 @@ function ArchitectureApp() {
             <span>South Gola Range, Chafi, Nainital, Uttarakhand 263136</span>
           </div>
           <div>
-            © {new Date().getFullYear()} The Hill Serenity Architecture. Crafted with React, GSAP & Kling AI.
+            © {new Date().getFullYear()} The Hill Serenity Architecture. Crafted with React, GSAP, Spline 3D & Kling AI.
           </div>
         </div>
       </footer>
@@ -1096,7 +1261,6 @@ function ArchitectureApp() {
   );
 }
 
-// Mount React Root
 const rootElement = document.getElementById("root");
 if (rootElement) {
   const root = ReactDOM.createRoot(rootElement);

@@ -287,3 +287,71 @@ body {
   width: 0%;
   transition: width 0.1s ease;
 }
+
+/* ==========================================================================
+   SEASONAL BACKGROUND TEMPLATES & ATMOSPHERIC SELECTOR
+   ========================================================================== */
+.cinema-bg-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
+  opacity: 0.42;
+  filter: brightness(0.9) contrast(1.1);
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.1s linear;
+}
+
+.season-template-pill {
+  padding: 0.35rem 0.75rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--color-cream-dim);
+  border: 1px solid var(--color-border-subtle);
+  transition: all 0.25s ease;
+  cursor: pointer;
+}
+
+.season-template-pill:hover,
+.season-template-pill.active {
+  background: var(--color-gold);
+  color: #090E0C;
+  border-color: var(--color-gold);
+  font-weight: 700;
+  box-shadow: 0 0 15px rgba(197, 168, 128, 0.35);
+}
+
+.season-card {
+  position: relative;
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  background: rgba(15, 26, 21, 0.75);
+  transition: all 0.4s ease;
+  cursor: pointer;
+}
+
+.season-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--color-gold);
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.6);
+}
+
+.season-card-img {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  transition: transform 0.7s ease;
+}
+
+.season-card:hover .season-card-img {
+  transform: scale(1.06);
+}
+
+.season-card.current-active {
+  border: 2px solid var(--color-gold);
+  box-shadow: 0 0 25px rgba(197, 168, 128, 0.3);
+}
