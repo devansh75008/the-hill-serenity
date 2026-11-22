@@ -1,750 +1,1104 @@
 /**
- * THE HILL SERENITY - LUXURY BOUTIQUE SANCTUARY
- * Chafi, Nainital District, Uttarakhand, India
- * Frontend Interaction, Ambient Background Video Engine, 3D Architecture Switcher,
- * Booking Engine Hooks, Gallery Lightbox, and Multi-language Logic
+ * THE HILL SERENITY - LUXURY ARCHITECTURE & BOUTIQUE SANCTUARY
+ * React 18 Application with GSAP ScrollTrigger, Lenis Smooth Scroll, Three.js 3D Model,
+ * and Kling AI Background Video Integration.
  */
 
+const { useState, useEffect, useRef } = React;
+
 // ==========================================================================
-// 1. BRAND TAGLINES (5 CURATED OPTIONS)
+// 1. DATA COLLECTIONS
 // ==========================================================================
-const TAGLINES = [
-  "Where the hills slow you down.",
-  "A quiet refuge in the Kumaon mist.",
-  "Stillness found between pine and prayer.",
-  "Elegance born of stone, cedar, and sacred silence.",
-  "Your private sanctuary at the threshold of Kainchi Dham."
+
+const PROCESS_STAGES = [
+  {
+    id: 1,
+    tag: "Stage 01",
+    title: "Excavation & River Stone Foundation",
+    description: "Deep hillside excavation into the South Gola Range granite bedrock. Reinforced concrete footings anchored with native Chafi river stone retaining walls to ensure century-long seismic stability and natural hill drainage.",
+    specs: ["Excavation Depth: 4.2m into bedrock", "Reinforced M30 Hill Grade Concrete", "Traditional Dry-Stack Retaining Walls", "Integrated Rainwater Sub-Drainage"],
+    image: "assets/process-stage1-foundation.jpg"
+  },
+  {
+    id: 2,
+    tag: "Stage 02",
+    title: "Structural Timber & 4 Alpine Gables",
+    description: "Erection of the structural skeleton featuring 4 distinct peaked alpine dormer trusses. Heavy-timber deodar joints and shear wall engineering provide natural resistance to Kumaon mountain gusts and heavy monsoon downpours.",
+    specs: ["4 Pitch-Steep Alpine Dormers", "Sustainably Sourced Mountain Deodar", "Earthquake-Resilient Steel Tie Brackets", "Multi-Tier Balcony Cantilevers"],
+    image: "assets/process-stage2-construction.jpg"
+  },
+  {
+    id: 3,
+    tag: "Stage 03",
+    title: "Cedar Interiors & Panoramic Glazing",
+    description: "Handcrafted interior millwork using fragrant Himalayan cedar. Installation of acoustic double-glazed argon-filled sliding glass doors on all curved verandas, capturing 270-degree valley views with zero thermal loss.",
+    specs: ["Argon-Filled Double Glazing", "Hand-Chiselled Chafi Stone Feature Walls", "Underfloor Hydronic Heating Pipes", "Custom Brass Fixtures & Hardware"],
+    image: "assets/process-stage3-interiors.jpg"
+  },
+  {
+    id: 4,
+    tag: "Stage 04",
+    title: "The Completed Sanctuary (Cream & Red Roof)",
+    description: "The completed 3-storey architectural sanctuary: textured cream limestone stucco walls, rich alpine crimson terracotta roof tiles, second-floor open-air tea terrace, and warm golden glowing windows overlooking the river valley.",
+    specs: ["Crimson Red Shingle Roofline", "Warm Limestone Cream Stucco", "Second-Level Valley Sun Terrace", "Drive-In Reception Portico Bay"],
+    image: "assets/process-stage4-completed.jpg"
+  }
 ];
 
-let currentTaglineIndex = 0;
-
-function switchTagline(index) {
-  const display = document.getElementById("heroTaglineText");
-  const buttons = document.querySelectorAll(".tagline-pill-btn");
-
-  if (!display) return;
-
-  display.style.opacity = "0";
-  setTimeout(() => {
-    currentTaglineIndex = index;
-    display.textContent = `"${TAGLINES[index]}"`;
-    display.style.opacity = "1";
-
-    buttons.forEach((btn, i) => {
-      btn.classList.toggle("active", i === index);
-    });
-  }, 180);
-}
-
-// ==========================================================================
-// 2. PHOTOGRAPHER SPEC / EDITORIAL MODE TOGGLE
-// ==========================================================================
-function setPhotoMode(showSpecs) {
-  const btnEditorial = document.getElementById("btnEditorialMode");
-  const btnSpec = document.getElementById("btnSpecMode");
-
-  if (showSpecs) {
-    document.body.classList.add("show-placeholders");
-    btnSpec.classList.add("active");
-    btnEditorial.classList.remove("active");
-  } else {
-    document.body.classList.remove("show-placeholders");
-    btnEditorial.classList.add("active");
-    btnSpec.classList.remove("active");
-  }
-}
-
-// ==========================================================================
-// 3. AMBIENT BACKGROUND VIDEO & MOUNTAIN AUDIO ENGINE
-// ==========================================================================
-let isVideoPlaying = true;
-let isAudioPlaying = false;
-let audioCtx = null;
-let noiseNode = null;
-let gainNode = null;
-
-function toggleAmbientVideo() {
-  const video = document.getElementById("bgAmbientVideo");
-  const icon = document.getElementById("videoStatusIcon");
-  const label = document.getElementById("videoStatusLabel");
-
-  if (!video) return;
-
-  if (video.paused) {
-    video.play();
-    isVideoPlaying = true;
-    if (icon) icon.textContent = "⏸";
-    if (label) label.textContent = "Greenery Motion";
-  } else {
-    video.pause();
-    isVideoPlaying = false;
-    if (icon) icon.textContent = "▶";
-    if (label) label.textContent = "Motion Paused";
-  }
-}
-
-let opacityModes = ["normal", "high", "soft"];
-let currentOpacityIndex = 0;
-
-function cycleVideoOpacity() {
-  currentOpacityIndex = (currentOpacityIndex + 1) % opacityModes.length;
-  const mode = opacityModes[currentOpacityIndex];
-  const label = document.getElementById("opacityLabel");
-
-  document.body.classList.remove("video-opacity-high", "video-opacity-soft");
-
-  if (mode === "high") {
-    document.body.classList.add("video-opacity-high");
-    if (label) label.textContent = "Vibrant Green";
-  } else if (mode === "soft") {
-    document.body.classList.add("video-opacity-soft");
-    if (label) label.textContent = "Soft Mist";
-  } else {
-    if (label) label.textContent = "Cinema";
-  }
-}
-
-/**
- * Web Audio API Mountain Wind Synthesizer
- * Generates organic, calming Himalayan mountain breeze without external audio files
- */
-function toggleAmbientAudio() {
-  const icon = document.getElementById("soundStatusIcon");
-  const label = document.getElementById("soundStatusLabel");
-
-  if (!isAudioPlaying) {
-    try {
-      const AudioContext = window.AudioContext || window.webkitAudioContext;
-      audioCtx = new AudioContext();
-
-      // Buffer for pink noise (mountain breeze)
-      const bufferSize = audioCtx.sampleRate * 3;
-      const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-      const data = buffer.getChannelData(0);
-      let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
-      for (let i = 0; i < bufferSize; i++) {
-        const white = Math.random() * 2 - 1;
-        b0 = 0.99886 * b0 + white * 0.0555179;
-        b1 = 0.99332 * b1 + white * 0.0750759;
-        b2 = 0.96900 * b2 + white * 0.1538520;
-        b3 = 0.86650 * b3 + white * 0.3104856;
-        b4 = 0.55000 * b4 + white * 0.5329522;
-        b5 = -0.7616 * b5 - white * 0.0168980;
-        data[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362) * 0.035;
-        b6 = white * 0.115926;
-      }
-
-      noiseNode = audioCtx.createBufferSource();
-      noiseNode.buffer = buffer;
-      noiseNode.loop = true;
-
-      // Filter for gentle mountain wind
-      const filter = audioCtx.createBiquadFilter();
-      filter.type = "lowpass";
-      filter.frequency.setValueAtTime(420, audioCtx.currentTime);
-
-      gainNode = audioCtx.createGain();
-      gainNode.gain.setValueAtTime(0.01, audioCtx.currentTime);
-      gainNode.gain.exponentialRampToValueAtTime(0.35, audioCtx.currentTime + 2);
-
-      noiseNode.connect(filter);
-      filter.connect(gainNode);
-      gainNode.connect(audioCtx.destination);
-
-      noiseNode.start();
-      isAudioPlaying = true;
-      if (icon) icon.textContent = "🔊";
-      if (label) label.textContent = "Pine Wind On";
-    } catch (err) {
-      console.warn("Web Audio not supported or blocked", err);
-    }
-  } else {
-    if (gainNode && audioCtx) {
-      gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 1);
-      setTimeout(() => {
-        if (noiseNode) noiseNode.stop();
-        if (audioCtx) audioCtx.close();
-        isAudioPlaying = false;
-        if (icon) icon.textContent = "🔇";
-        if (label) label.textContent = "Mountain Audio";
-      }, 1000);
-    }
-  }
-}
-
-// ==========================================================================
-// 4. ARCHITECTURAL 3D RENDER SWITCHER
-// ==========================================================================
-const ARCH_RENDERS = {
-  front: {
-    src: "assets/architecture-elevation-front.jpg",
-    badge: "Front Elevation • 3 Storeys & 4 Gabled Dormers",
-    caption: "Architectural front elevation showing drive-in reception portico, curved suite balconies, and top-floor valley lookout."
+const PROJECTS = [
+  {
+    id: "serenity",
+    title: "The Hill Serenity Sanctuary",
+    category: "Boutique Homestay",
+    location: "Chafi, South Gola Range, Nainital",
+    specs: "3 Storeys • 4 Gables • 10 Bespoke Suites",
+    image: "assets/property-cream-redroof-masterpiece.jpg",
+    description: "Our signature mountain retreat designed for spiritual seekers and nature immersion. Built with cream stucco, red alpine roofs, and private curved verandas 12 km from Kainchi Dham."
   },
-  isometric: {
-    src: "assets/architecture-isometric-3d.jpg",
-    badge: "3D Isometric View • Arched Stone Wing & Tea Terrace",
-    caption: "Elevated aerial view highlighting the 2nd-floor outdoor sun terrace with dining umbrella, arched river-stone wall, and road approach."
-  }
-};
-
-function switchArchRender(type, btn) {
-  const data = ARCH_RENDERS[type];
-  if (!data) return;
-
-  const img = document.getElementById("archMainRender");
-  const badge = document.getElementById("archRenderBadge");
-  const buttons = document.querySelectorAll(".arch-tab-btn");
-
-  if (img) {
-    img.style.opacity = "0.4";
-    setTimeout(() => {
-      img.src = data.src;
-      img.style.opacity = "1";
-    }, 150);
-  }
-
-  if (badge) badge.textContent = data.badge;
-
-  buttons.forEach((b) => b.classList.remove("active"));
-  if (btn) btn.classList.add("active");
-}
-
-// ==========================================================================
-// 5. DATE INITIALIZATION & QUICK AVAILABILITY BAR
-// ==========================================================================
-function initDatePickers() {
-  const today = new Date();
-  
-  const checkInDate = new Date();
-  checkInDate.setDate(today.getDate() + 1);
-
-  const checkOutDate = new Date();
-  checkOutDate.setDate(today.getDate() + 4);
-
-  const formatDate = (d) => d.toISOString().split("T")[0];
-
-  const quickIn = document.getElementById("quickCheckIn");
-  const quickOut = document.getElementById("quickCheckOut");
-  const formIn = document.getElementById("formCheckIn");
-  const formOut = document.getElementById("formCheckOut");
-
-  const minDateStr = formatDate(today);
-  const inStr = formatDate(checkInDate);
-  const outStr = formatDate(checkOutDate);
-
-  [quickIn, quickOut, formIn, formOut].forEach((el) => {
-    if (el) el.min = minDateStr;
-  });
-
-  if (quickIn) quickIn.value = inStr;
-  if (quickOut) quickOut.value = outStr;
-  if (formIn) formIn.value = inStr;
-  if (formOut) formOut.value = outStr;
-}
-
-function handleQuickCheck(e) {
-  e.preventDefault();
-  const checkIn = document.getElementById("quickCheckIn").value;
-  const checkOut = document.getElementById("quickCheckOut").value;
-  const guests = document.getElementById("quickGuests").value;
-  const purpose = document.getElementById("quickPurpose").value;
-
-  const formIn = document.getElementById("formCheckIn");
-  const formOut = document.getElementById("formCheckOut");
-  const formGuests = document.getElementById("formGuests");
-  const formPurpose = document.getElementById("formPurpose");
-
-  if (formIn) formIn.value = checkIn;
-  if (formOut) formOut.value = checkOut;
-  if (formGuests) {
-    if (guests.includes("1")) formGuests.value = "1 Guest";
-    else if (guests.includes("2")) formGuests.value = "2 Guests";
-    else if (guests.includes("3")) formGuests.value = "3 Guests";
-    else if (guests.includes("Family")) formGuests.value = "4 Guests";
-    else formGuests.value = "5+ Guests";
-  }
-  if (formPurpose) formPurpose.value = purpose;
-
-  const contactSec = document.getElementById("contact");
-  if (contactSec) {
-    contactSec.scrollIntoView({ behavior: "smooth" });
-    const nameInput = document.getElementById("guestName");
-    if (nameInput) setTimeout(() => nameInput.focus(), 600);
-  }
-}
-
-// ==========================================================================
-// 6. ROOMS FILTER & MODAL DATA
-// ==========================================================================
-const ROOM_DATA = {
-  deodar: {
-    title: "The Deodar Valley Suite",
-    subtitle: "Signature 620 sq.ft Cantilevered Balcony Suite",
-    price: "₹14,500",
+  {
+    id: "mukteshwar",
+    title: "The Mukteshwar Ridge Chalet",
+    category: "Private Residence",
+    location: "Mukteshwar, Uttarakhand (7,500 ft)",
+    specs: "4 Bedrooms • Stone Hearth • Nanda Devi View",
+    image: "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1200&q=80",
+    description: "A cliffside luxury residence oriented toward the snow peaks of Nanda Devi and Trishul, combining slate gables with floor-to-ceiling glass pavilions."
+  },
+  {
+    id: "sattal",
+    title: "Sattal Lakeview Glass Villa",
+    category: "Lakefront Villa",
+    location: "Sattal Forest Reserve, Uttarakhand",
+    specs: "Cantilevered Glass • 5 En-Suites • Private Deck",
     image: "https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=1200&q=80",
-    specs: ["620 sq.ft", "Handcrafted King Teak Bed", "Max 3 Guests", "Pine Valley Facing"],
-    amenities: [
-      "Cantilevered cedarwood balcony with outdoor loungers",
-      "Deep forest-view soaking bathtub & brass fixtures",
-      "Wood-burning cast iron stove & silent convection heating",
-      "Hand-pressed organic hill herbal shampoo and bath oils",
-      "Complimentary high-speed optic fiber Wi-Fi (200 Mbps)",
-      "Daily fresh fruit hamper from local Ramgarh orchards",
-      "Artisanal French press with estate ground coffee and local tea blends"
-    ],
-    description: "Suspended amidst the fragrant canopy of old-growth deodar pines, our signature suite is an intimate haven for those seeking solitude and majestic valley vistas. Floor-to-ceiling glass doors open directly to your private balcony, where the morning mist swirls across the ridges as the sun ascends over the Kumaon peaks."
+    description: "Suspended amidst old-growth oak and pine forests, this modern villa hovers above the pristine waters of the seven interconnected lakes."
   },
-  heritage: {
-    title: "The Kumaon Heritage Room",
-    subtitle: "480 sq.ft Ground Terrace Suite with Chafi Stone Walls",
-    price: "₹11,500",
-    image: "https://images.unsplash.com/photo-1618773928121-c32242e63f39?auto=format&fit=crop&w=1200&q=80",
-    specs: ["480 sq.ft", "King or Twin Beds", "Max 2 Adults + 1 Child", "Direct Herb Garden Patio"],
-    amenities: [
-      "Ground-level walkout to private plum and apple orchard",
-      "Exposed hand-chiselled native Chafi river-stone walls",
-      "Handwoven Almora woollen throws & brass bedside lamps",
-      "Brass rain shower with continuous solar hot water",
-      "Pet friendly upon prior request (direct garden access)",
-      "Underfloor bathroom heating for winter warmth"
-    ],
-    description: "Honouring classical Kumaoni homestead architecture, this ground-level sanctuary features thick stone walls that provide natural climate insulation throughout the year. Step directly onto gravel stone pathways lined with wild mint, lavender, and mountain roses."
-  },
-  mist: {
-    title: "The Mist Veranda Room",
-    subtitle: "540 sq.ft Upper-Ridge Suite with Ergonomic Study Desk",
-    price: "₹13,000",
-    image: "https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&w=1200&q=80",
-    specs: ["540 sq.ft", "King Plush Bed", "Max 2 Adults", "Panoramic Mountain Ridge View"],
-    amenities: [
-      "Handcrafted oak study desk facing the mountain expanse",
-      "Dedicated high-speed mesh router for uninterrupted video calls",
-      "Covered wooden veranda with cushioned daybed",
-      "Silent convective heating & double-glazed acoustic windows",
-      "Pahadi herbal infusion bar & electric kettle",
-      "Curated library of Kumaon history, Jim Corbett, and Maharaj-ji literature"
-    ],
-    description: "Designed for writers, thinkers, and travellers seeking an inspiring mountain workation. The Mist Veranda Room captures the changing moods of the Kumaon sky, from ethereal morning fog to dramatic evening starscapes."
-  },
-  villa: {
-    title: "Pine Duplex Family Villa",
-    subtitle: "980 sq.ft Standalone Two-Tier Mountain Chalet",
-    price: "₹24,000",
-    image: "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1200&q=80",
-    specs: ["980 sq.ft", "2 King En-Suite Bedrooms", "Up to 5 Guests", "Private Stargazing Lawn"],
-    amenities: [
-      "Two private master bedrooms with dedicated en-suite bathrooms",
-      "Spacious living parlour with wood-burning stone fireplace",
-      "Private dining pantry with refrigerator & induction warming",
-      "Exclusive enclosed lawn with private bonfire pit",
-      "Dedicated villa butler service throughout your stay",
-      "Complimentary baby cot and child-friendly meal tailoring"
-    ],
-    description: "A private mountain home for extended families or close friends traveling together. Set slightly apart from the main wing, this two-storey sanctuary offers absolute privacy, a crackling fireplace lounge, and an exclusive grassy knoll for private stargazing and family dinners."
+  {
+    id: "kumaon-estate",
+    title: "Chafi Valley River Homestead",
+    category: "Heritage Homestead",
+    location: "Kalsa Riverbanks, Nainital",
+    specs: "Handcrafted River Stone • Organic Orchard",
+    image: "https://images.unsplash.com/photo-1518780664697-55e3ad937233?auto=format&fit=crop&w=1200&q=80",
+    description: "A masterclass in vernacular stone masonry, restoring indigenous Kumaoni homestead traditions with state-of-the-art geothermal climate control."
   }
-};
-
-function filterRooms(category, btn) {
-  const buttons = document.querySelectorAll(".room-tab-btn");
-  buttons.forEach((b) => b.classList.remove("active"));
-  if (btn) btn.classList.add("active");
-
-  const cards = document.querySelectorAll(".room-card");
-  cards.forEach((card) => {
-    const cardCat = card.getAttribute("data-category");
-    if (category === "all" || cardCat === category) {
-      card.style.display = "flex";
-    } else {
-      card.style.display = "none";
-    }
-  });
-}
-
-function openRoomModal(roomId) {
-  const room = ROOM_DATA[roomId];
-  if (!room) return;
-
-  const contentWrap = document.getElementById("roomModalContent");
-  contentWrap.innerHTML = `
-    <span class="eyebrow">${room.subtitle}</span>
-    <h2 style="font-size: 2.3rem; color: var(--color-pine-dark); margin-bottom: 0.5rem;">${room.title}</h2>
-    <div style="font-size: 1.4rem; font-family: var(--font-serif); color: var(--color-gold-dark); font-weight: 600; margin-bottom: 1.5rem;">
-      Starting at ${room.price} <span style="font-size: 0.85rem; font-family: var(--font-sans); color: var(--color-slate); font-weight: 400;">/ night + taxes</span>
-    </div>
-    
-    <div style="margin-bottom: 1.5rem; border-radius: var(--radius-xs); overflow: hidden; height: 320px;">
-      <img src="${room.image}" alt="${room.title}" style="width: 100%; height: 100%; object-fit: cover;">
-    </div>
-
-    <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem; padding: 0.8rem 0; border-top: 1px solid var(--color-border); border-bottom: 1px solid var(--color-border);">
-      ${room.specs.map(s => `<span style="font-size: 0.8rem; font-weight: 600; color: var(--color-pine-deep); text-transform: uppercase;">• ${s}</span>`).join("")}
-    </div>
-
-    <p style="font-size: 0.95rem; color: var(--color-slate); line-height: 1.8; margin-bottom: 1.5rem;">
-      ${room.description}
-    </p>
-
-    <h4 style="font-size: 1.1rem; color: var(--color-pine-dark); margin-bottom: 0.8rem;">Bespoke In-Suite Amenities</h4>
-    <ul style="list-style: none; display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; margin-bottom: 2rem;">
-      ${room.amenities.map(a => `<li style="font-size: 0.85rem; color: var(--color-pine-soft); display: flex; align-items: baseline; gap: 0.5rem;"><span style="color: var(--color-gold);">✓</span> ${a}</li>`).join("")}
-    </ul>
-
-    <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-      <button class="btn btn-primary" onclick="closeModal('roomModal'); prefillBooking('${room.title}');">
-        Reserve This Suite (Pre-Launch Priority)
-      </button>
-      <a href="https://wa.me/919876543210?text=Namaste!%20I%20am%20interested%20in%20reserving%20the%20${encodeURIComponent(room.title)}%20at%20The%20Hill%20Serenity." target="_blank" class="btn btn-outline">
-        Chat on WhatsApp
-      </a>
-    </div>
-  `;
-
-  openModal("roomModal");
-}
-
-function prefillBooking(roomName) {
-  const roomSelect = document.getElementById("roomPref");
-  if (roomSelect) {
-    for (let i = 0; i < roomSelect.options.length; i++) {
-      if (roomSelect.options[i].text.toLowerCase().includes(roomName.toLowerCase())) {
-        roomSelect.selectedIndex = i;
-        break;
-      }
-    }
-  }
-
-  const contactSec = document.getElementById("contact");
-  if (contactSec) {
-    contactSec.scrollIntoView({ behavior: "smooth" });
-    const nameInput = document.getElementById("guestName");
-    if (nameInput) setTimeout(() => nameInput.focus(), 500);
-  }
-}
-
-// ==========================================================================
-// 7. GALLERY FILTER & FULLSCREEN LIGHTBOX (INCLUDING 3D ARCHITECTURE)
-// ==========================================================================
-const GALLERY_ITEMS = [
-  { src: "assets/architecture-elevation-front.jpg", title: "Architectural Front Elevation", sub: "3-Storey Alpine Dormers, Covered Portico & Balconies" },
-  { src: "assets/architecture-isometric-3d.jpg", title: "Architectural 3D Isometric View", sub: "Arched Stone Feature Wall, Tea Terrace & Valley Approach" },
-  { src: "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1600&q=85", title: "Handcrafted River Stone Verandas", sub: "Architecture & Grounds • Chafi" },
-  { src: "https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=1600&q=85", title: "The Deodar Valley Suite", sub: "Suites & Interiors • Veranda View" },
-  { src: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1600&q=85", title: "Morning Mist Rising Over South Gola Range", sub: "Surroundings • Kumaon Pine Valley" },
-  { src: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=1600&q=85", title: "Organic Kumaoni Harvest", sub: "Cuisine & Farm • The Cedar Hearth" },
-  { src: "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=1600&q=85", title: "Forest-View Soaking Tub", sub: "Suites & Interiors • Brass & Stone" },
-  { src: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1600&q=85", title: "Kalsa Riverbank Pathway", sub: "Surroundings • Pure Mountain Waters" }
 ];
 
-let currentLightboxIndex = 0;
+// ==========================================================================
+// 2. THREE.JS 3D ARCHITECTURAL MODEL COMPONENT
+// ==========================================================================
+function Interactive3DViewer() {
+  const mountRef = useRef(null);
+  const [lightMode, setLightMode] = useState("golden");
 
-function filterGallery(group, btn) {
-  const buttons = document.querySelectorAll(".gallery-filter-btn");
-  buttons.forEach((b) => b.classList.remove("active"));
-  if (btn) btn.classList.add("active");
+  useEffect(() => {
+    const container = mountRef.current;
+    if (!container) return;
 
-  const items = document.querySelectorAll(".gallery-item");
-  items.forEach((item) => {
-    const itemGroup = item.getAttribute("data-group");
-    if (group === "all" || itemGroup === group) {
-      item.style.display = "block";
-    } else {
-      item.style.display = "none";
+    const width = container.clientWidth;
+    const height = container.clientHeight;
+
+    // Scene, Camera, Renderer
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x0a120e);
+    scene.fog = new THREE.FogExp2(0x0a120e, 0.035);
+
+    const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
+    camera.position.set(14, 8, 16);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setSize(width, height);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    container.appendChild(renderer.domElement);
+
+    // Orbit Controls (Simulated with Mouse Drag for Zero Friction)
+    let isDragging = false;
+    let prevMouseX = 0;
+    let prevMouseY = 0;
+    let rotY = 0.5;
+    let rotX = 0.25;
+
+    const onMouseDown = (e) => {
+      isDragging = true;
+      prevMouseX = e.clientX;
+      prevMouseY = e.clientY;
+    };
+    const onMouseMove = (e) => {
+      if (!isDragging) return;
+      const deltaX = e.clientX - prevMouseX;
+      const deltaY = e.clientY - prevMouseY;
+      rotY += deltaX * 0.007;
+      rotX = Math.max(-0.2, Math.min(0.8, rotX + deltaY * 0.005));
+      prevMouseX = e.clientX;
+      prevMouseY = e.clientY;
+    };
+    const onMouseUp = () => { isDragging = false; };
+
+    container.addEventListener("mousedown", onMouseDown);
+    window.addEventListener("mousemove", onMouseMove);
+    window.addEventListener("mouseup", onMouseUp);
+
+    // Touch support for mobile
+    const onTouchStart = (e) => {
+      if (e.touches.length === 1) {
+        isDragging = true;
+        prevMouseX = e.touches[0].clientX;
+        prevMouseY = e.touches[0].clientY;
+      }
+    };
+    const onTouchMove = (e) => {
+      if (!isDragging || e.touches.length !== 1) return;
+      const deltaX = e.touches[0].clientX - prevMouseX;
+      const deltaY = e.touches[0].clientY - prevMouseY;
+      rotY += deltaX * 0.009;
+      rotX = Math.max(-0.2, Math.min(0.8, rotX + deltaY * 0.007));
+      prevMouseX = e.touches[0].clientX;
+      prevMouseY = e.touches[0].clientY;
+    };
+    const onTouchEnd = () => { isDragging = false; };
+
+    container.addEventListener("touchstart", onTouchStart, { passive: true });
+    window.addEventListener("touchmove", onTouchMove, { passive: true });
+    window.addEventListener("touchend", onTouchEnd);
+
+    // Lights
+    const ambientLight = new THREE.AmbientLight(0xf5efe3, 0.6);
+    scene.add(ambientLight);
+
+    const sunLight = new THREE.DirectionalLight(0xffb266, 1.4);
+    sunLight.position.set(20, 25, 15);
+    sunLight.castShadow = true;
+    scene.add(sunLight);
+
+    // Ground Plane (Mountain Grass & Soil)
+    const groundGeo = new THREE.CylinderGeometry(18, 18, 0.4, 32);
+    const groundMat = new THREE.MeshStandardMaterial({ color: 0x182b20, roughness: 0.9 });
+    const ground = new THREE.Mesh(groundGeo, groundMat);
+    ground.position.y = -0.2;
+    ground.receiveShadow = true;
+    scene.add(ground);
+
+    // Group for the 3D Building
+    const buildingGroup = new THREE.Group();
+
+    // 1. Main Cream Stucco Building Body (3 Storeys)
+    const creamMat = new THREE.MeshStandardMaterial({
+      color: 0xf5efe3,
+      roughness: 0.7,
+      metalness: 0.05
+    });
+
+    const bodyGeo = new THREE.BoxGeometry(8.5, 4.8, 5.5);
+    const bodyMesh = new THREE.Mesh(bodyGeo, creamMat);
+    bodyMesh.position.y = 2.4;
+    bodyMesh.castShadow = true;
+    bodyMesh.receiveShadow = true;
+    buildingGroup.add(bodyMesh);
+
+    // 2. The 4 Alpine Gabled Roofs in Crimson Terracotta Red (#A83232)
+    const roofRedMat = new THREE.MeshStandardMaterial({
+      color: 0xa83232,
+      roughness: 0.45,
+      metalness: 0.1
+    });
+
+    const gableWidth = 8.5 / 4;
+    for (let i = 0; i < 4; i++) {
+      const gableGeo = new THREE.ConeGeometry(gableWidth * 0.75, 1.8, 4);
+      const gable = new THREE.Mesh(gableGeo, roofRedMat);
+      gable.position.set(-8.5 / 2 + gableWidth * (i + 0.5), 4.8 + 0.9, 0);
+      gable.rotation.y = Math.PI / 4;
+      gable.scale.set(1.1, 1, 1.4);
+      gable.castShadow = true;
+      buildingGroup.add(gable);
     }
-  });
-}
 
-function openLightbox(index) {
-  const item = GALLERY_ITEMS[index];
-  if (!item) return;
+    // 3. Ground Level Drive-In Portico (Left side entrance)
+    const porticoMat = new THREE.MeshStandardMaterial({ color: 0x243b30, roughness: 0.6 });
+    const porticoGeo = new THREE.BoxGeometry(4.5, 1.8, 3.2);
+    const portico = new THREE.Mesh(porticoGeo, porticoMat);
+    portico.position.set(-3.2, 0.9, 3.2);
+    portico.castShadow = true;
+    buildingGroup.add(portico);
 
-  currentLightboxIndex = index;
-  const modal = document.getElementById("lightboxModal");
-  const img = document.getElementById("lightboxImg");
-  const title = document.getElementById("lightboxTitle");
-  const sub = document.getElementById("lightboxSubtitle");
+    // Second-Floor Sun Terrace Deck (On top of Portico) with Umbrella
+    const deckMat = new THREE.MeshStandardMaterial({ color: 0xdcd4c4, roughness: 0.5 });
+    const deckGeo = new THREE.BoxGeometry(4.5, 0.15, 3.2);
+    const deck = new THREE.Mesh(deckGeo, deckMat);
+    deck.position.set(-3.2, 1.85, 3.2);
+    buildingGroup.add(deck);
 
-  img.src = item.src;
-  title.textContent = item.title;
-  sub.textContent = item.sub;
+    // Umbrella
+    const poleGeo = new THREE.CylinderGeometry(0.04, 0.04, 1.2);
+    const poleMat = new THREE.MeshStandardMaterial({ color: 0x333333 });
+    const pole = new THREE.Mesh(poleGeo, poleMat);
+    pole.position.set(-3.2, 2.45, 3.2);
+    buildingGroup.add(pole);
 
-  modal.classList.add("open");
-  document.body.style.overflow = "hidden";
-}
+    const canopyGeo = new THREE.ConeGeometry(0.9, 0.4, 8);
+    const canopyMat = new THREE.MeshStandardMaterial({ color: 0xa83232 });
+    const canopy = new THREE.Mesh(canopyGeo, canopyMat);
+    canopy.position.set(-3.2, 3.0, 3.2);
+    buildingGroup.add(canopy);
 
-function closeLightbox() {
-  const modal = document.getElementById("lightboxModal");
-  modal.classList.remove("open");
-  document.body.style.overflow = "";
-}
+    // 4. Glowing Windows & Semicircular Balconies
+    const glowWindowMat = new THREE.MeshStandardMaterial({
+      color: 0xffa034,
+      emissive: 0xff8c1a,
+      emissiveIntensity: 0.8,
+      roughness: 0.2
+    });
 
-function handleLightboxBackdrop(e) {
-  if (e.target.id === "lightboxModal") {
-    closeLightbox();
-  }
-}
+    for (let f = 1; f <= 2; f++) {
+      for (let b = 0; b < 3; b++) {
+        // Window
+        const win = new THREE.Mesh(new THREE.PlaneGeometry(1.2, 1.3), glowWindowMat);
+        win.position.set(-2 + b * 2.2, f * 1.5 + 0.8, 2.76);
+        buildingGroup.add(win);
 
-// ==========================================================================
-// 8. KAINCHI DHAM GUIDE MODAL
-// ==========================================================================
-function openKainchiGuideModal() {
-  openModal("kainchiModal");
-}
+        // Curved Balcony
+        const balGeo = new THREE.CylinderGeometry(0.9, 0.9, 0.45, 16, 1, false, 0, Math.PI);
+        const balMat = new THREE.MeshStandardMaterial({ color: 0x1f2421, metalness: 0.8 });
+        const bal = new THREE.Mesh(balGeo, balMat);
+        bal.position.set(-2 + b * 2.2, f * 1.5 + 0.2, 2.76);
+        bal.rotation.y = Math.PI;
+        buildingGroup.add(bal);
+      }
+    }
 
-// ==========================================================================
-// 9. GENERIC MODAL CONTROLLERS
-// ==========================================================================
-function openModal(id) {
-  const el = document.getElementById(id);
-  if (el) {
-    el.classList.add("open");
-    document.body.style.overflow = "hidden";
-  }
-}
+    // 5. Pine Trees around the Property
+    const treeTrunkMat = new THREE.MeshStandardMaterial({ color: 0x3d2817 });
+    const pineLeavesMat = new THREE.MeshStandardMaterial({ color: 0x1c3a2b, roughness: 0.8 });
 
-function closeModal(id) {
-  const el = document.getElementById(id);
-  if (el) {
-    el.classList.remove("open");
-    document.body.style.overflow = "";
-  }
-}
+    const treePositions = [
+      [-6, 0, -4], [-7, 0, 1], [-5.5, 0, -6],
+      [6, 0, -3], [7.5, 0, 2], [6.5, 0, -6]
+    ];
 
-function handleBackdropClick(e, id) {
-  if (e.target.id === id) {
-    closeModal(id);
-  }
-}
+    treePositions.forEach(([tx, ty, tz]) => {
+      const tree = new THREE.Group();
+      const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.16, 1.2), treeTrunkMat);
+      trunk.position.y = 0.6;
+      tree.add(trunk);
 
-// ==========================================================================
-// 10. VIP WAITLIST FORM HANDLING
-// ==========================================================================
-function handleWaitlistSubmit(e) {
-  e.preventDefault();
-  const name = document.getElementById("waitlistName").value.trim();
-  const email = document.getElementById("waitlistEmail").value.trim();
+      for (let i = 0; i < 3; i++) {
+        const cone = new THREE.Mesh(new THREE.ConeGeometry(1.1 - i * 0.25, 1.4, 6), pineLeavesMat);
+        cone.position.y = 1.3 + i * 0.8;
+        cone.castShadow = true;
+        tree.add(cone);
+      }
+      tree.position.set(tx, ty, tz);
+      buildingGroup.add(tree);
+    });
 
-  if (!name || !email) return;
+    scene.add(buildingGroup);
 
-  const memberCode = "HS-VIP-" + Math.floor(1000 + Math.random() * 9000);
-  const waitlistData = {
-    name,
-    email,
-    memberCode,
-    dateJoined: new Date().toISOString()
-  };
+    // Animation Loop
+    let animId;
+    const animate = () => {
+      animId = requestAnimationFrame(animate);
 
-  try {
-    const existing = JSON.parse(localStorage.getItem("theHillSerenityWaitlist") || "[]");
-    existing.push(waitlistData);
-    localStorage.setItem("theHillSerenityWaitlist", JSON.stringify(existing));
-  } catch (err) {
-    console.warn("Storage not available", err);
-  }
+      // Auto rotation when idle
+      if (!isDragging) {
+        rotY += 0.002;
+      }
 
-  const modalContent = document.getElementById("vipModalContent");
-  modalContent.innerHTML = `
-    <div style="font-size: 2.8rem; margin-bottom: 0.5rem;">✨</div>
-    <span class="eyebrow" style="color: var(--color-gold-dark);">Founding Guest Certificate</span>
-    <h2 style="font-size: 2rem; color: var(--color-pine-dark); margin-bottom: 0.5rem;">Welcome to the Inner Circle</h2>
-    <p style="font-size: 0.95rem; color: var(--color-slate); line-height: 1.6; margin-bottom: 1.5rem;">
-      Thank you, <strong>${name}</strong>. Your privileged pre-launch status has been registered for <strong>${email}</strong>.
-    </p>
+      // Camera position from spherical coordinates
+      const radius = 17;
+      camera.position.x = radius * Math.sin(rotY) * Math.cos(rotX);
+      camera.position.y = Math.max(2, radius * Math.sin(rotX) + 3);
+      camera.position.z = radius * Math.cos(rotY) * Math.cos(rotX);
+      camera.lookAt(0, 2.2, 0);
 
-    <div style="background-color: var(--color-sand); border: 2px dashed var(--color-gold); padding: 1.25rem; border-radius: var(--radius-xs); margin-bottom: 1.5rem;">
-      <span style="font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.16em; color: var(--color-pine-soft); font-weight: 700; display: block; margin-bottom: 0.3rem;">Your VIP Invitation Code</span>
-      <strong style="font-family: var(--font-serif); font-size: 2rem; letter-spacing: 0.1em; color: var(--color-pine-dark);">${memberCode}</strong>
-      <div style="font-size: 0.76rem; color: var(--color-gold-dark); margin-top: 0.4rem; font-weight: 600;">
-        Privileges: ₹3,000 Dining Credit + 25% Off Suite Tariff + Priority Kainchi Transfer
+      renderer.render(scene, camera);
+    };
+    animate();
+
+    // Handle Resize
+    const handleResize = () => {
+      if (!container) return;
+      const w = container.clientWidth;
+      const h = container.clientHeight;
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      renderer.setSize(w, h);
+    };
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      cancelAnimationFrame(animId);
+      window.removeEventListener("resize", handleResize);
+      container.removeEventListener("mousedown", onMouseDown);
+      window.removeEventListener("mousemove", onMouseMove);
+      window.removeEventListener("mouseup", onMouseUp);
+      container.removeEventListener("touchstart", onTouchStart);
+      window.removeEventListener("touchmove", onTouchMove);
+      window.removeEventListener("touchend", onTouchEnd);
+      if (renderer.domElement && container.contains(renderer.domElement)) {
+        container.removeChild(renderer.domElement);
+      }
+    };
+  }, []);
+
+  return (
+    <div className="relative spline-canvas-wrap" ref={mountRef}>
+      <div className="canvas-hint-pill">
+        <span>⟳ Drag to Orbit 3D Architecture • Cream Walls & Red Alpine Roof</span>
       </div>
     </div>
-
-    <p style="font-size: 0.85rem; color: var(--color-muted); margin-bottom: 1.5rem;">
-      Our concierge will reach out directly prior to our official Spring 2025 opening to offer you early-access room selection.
-    </p>
-
-    <button class="btn btn-primary" onclick="closeModal('vipModal')">
-      Return to Sanctuary Overview
-    </button>
-  `;
-
-  openModal("vipModal");
-  document.getElementById("waitlistForm").reset();
+  );
 }
 
 // ==========================================================================
-// 11. RESERVATION ENQUIRY & WHATSAPP ENGINE DISPATCH
+// 3. MAIN REACT APP COMPONENT
 // ==========================================================================
-function handleEnquirySubmit(e) {
-  e.preventDefault();
-  const name = document.getElementById("guestName").value.trim();
-  const phone = document.getElementById("guestPhone").value.trim();
-  const email = document.getElementById("guestEmail").value.trim();
-  const room = document.getElementById("roomPref").value;
-  const checkIn = document.getElementById("formCheckIn").value;
-  const checkOut = document.getElementById("formCheckOut").value;
-  const guests = document.getElementById("formGuests").value;
-  const purpose = document.getElementById("formPurpose").value;
-  const notes = document.getElementById("guestNotes").value.trim();
+function ArchitectureApp() {
+  const [activeStage, setActiveStage] = useState(0);
+  const [isVideoPlaying, setIsVideoPlaying] = useState(true);
+  const [isAudioPlaying, setIsAudioPlaying] = useState(false);
+  const [selectedProject, setSelectedProject] = useState(null);
+  const [formSubmitted, setFormSubmitted] = useState(false);
 
-  const refCode = "HS-RES-" + Math.floor(10000 + Math.random() * 90000);
+  const videoRef = useRef(null);
+  const audioCtxRef = useRef(null);
+  const gainNodeRef = useRef(null);
+  const noiseNodeRef = useRef(null);
 
-  const waText = 
-`*New Reservation Enquiry - The Hill Serenity, Chafi*
-Ref: ${refCode}
-----------------------------------------
-• *Guest Name:* ${name}
-• *Phone:* ${phone}
-• *Email:* ${email}
-• *Suite Preference:* ${room}
-• *Dates:* ${checkIn} to ${checkOut}
-• *Guests:* ${guests}
-• *Stay Purpose:* ${purpose}
-• *Special Notes/Diet:* ${notes ? notes : "None specified"}
-----------------------------------------
-_Please confirm room availability and applicable pre-launch privileges._`;
-
-  const encodedWa = encodeURIComponent(waText);
-  const waUrl = `https://wa.me/919876543210?text=${encodedWa}`;
-
-  dispatchBookingEngineHook({
-    refCode, name, phone, email, room, checkIn, checkOut, guests, purpose, notes
-  });
-
-  const modalContent = document.getElementById("vipModalContent");
-  modalContent.innerHTML = `
-    <div style="font-size: 2.8rem; margin-bottom: 0.5rem;">🏔️</div>
-    <span class="eyebrow" style="color: var(--color-gold-dark);">Reservation Request Received</span>
-    <h2 style="font-size: 2rem; color: var(--color-pine-dark); margin-bottom: 0.5rem;">Namaste, ${name}</h2>
-    <p style="font-size: 0.95rem; color: var(--color-slate); line-height: 1.6; margin-bottom: 1.5rem;">
-      Your enquiry for <strong>${room}</strong> (${checkIn} to ${checkOut}) has been securely logged with our hospitality concierge under reference:
-    </p>
-
-    <div style="background-color: var(--color-sand); border: 1px solid var(--color-gold); padding: 1.25rem; border-radius: var(--radius-xs); margin-bottom: 1.5rem;">
-      <span style="font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--color-muted); font-weight: 700; display: block; margin-bottom: 0.2rem;">Enquiry Tracking Reference</span>
-      <strong style="font-family: var(--font-serif); font-size: 1.8rem; color: var(--color-pine-dark);">${refCode}</strong>
-    </div>
-
-    <p style="font-size: 0.88rem; color: var(--color-slate); margin-bottom: 1.5rem;">
-      To receive instantaneous confirmation and discuss customised meal or Kainchi Dham pilgrimage arrangements directly with our resident host, tap below:
-    </p>
-
-    <div style="display: flex; flex-direction: column; gap: 0.75rem;">
-      <a href="${waUrl}" target="_blank" class="btn btn-gold" style="display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
-        <span>💬</span> Complete Confirmation on WhatsApp
-      </a>
-      <button class="btn btn-outline btn-sm" onclick="closeModal('vipModal')">
-        Close & Receive Confirmation by Email
-      </button>
-    </div>
-  `;
-
-  openModal("vipModal");
-  document.getElementById("enquiryForm").reset();
-}
-
-function dispatchBookingEngineHook(data) {
-  console.log("[The Hill Serenity] Booking Engine Hook Payload:", data);
-}
-
-// ==========================================================================
-// 12. FAQ ACCORDION
-// ==========================================================================
-function toggleFaq(btn) {
-  const item = btn.closest(".faq-item");
-  const isActive = item.classList.contains("active");
-
-  document.querySelectorAll(".faq-item").forEach((el) => {
-    el.classList.remove("active");
-  });
-
-  if (!isActive) {
-    item.classList.add("active");
-  }
-}
-
-// ==========================================================================
-// 13. MULTI-LANGUAGE PREVIEW TOGGLE (ENGLISH / HINDI)
-// ==========================================================================
-let isHindi = false;
-
-function toggleLanguage() {
-  isHindi = !isHindi;
-  const label = document.getElementById("currentLangLabel");
-  const heroTitle = document.querySelector(".hero-title");
-  const heroBadge = document.querySelector(".hero-badge span:last-child");
-
-  if (isHindi) {
-    if (label) label.textContent = "HI";
-    if (heroTitle) heroTitle.innerHTML = "द हिल सेरेनिटी";
-    if (heroBadge) heroBadge.textContent = "शुभारंभ वसंत २०२५ • चाफी, नैनीताल";
-  } else {
-    if (label) label.textContent = "EN";
-    if (heroTitle) heroTitle.innerHTML = "The Hill Serenity";
-    if (heroBadge) heroBadge.textContent = "Opening Spring 2025 • Chafi, Nainital";
-  }
-}
-
-// ==========================================================================
-// 14. MOBILE MENU & SCROLL EFFECTS
-// ==========================================================================
-document.addEventListener("DOMContentLoaded", () => {
-  initDatePickers();
-
-  const header = document.getElementById("siteHeader");
-  const ambientVideo = document.getElementById("bgAmbientVideo");
-
-  window.addEventListener("scroll", () => {
-    const scrollY = window.scrollY;
-
-    // Header sticky transition
-    if (scrollY > 40) {
-      header.classList.add("scrolled");
-    } else {
-      header.classList.remove("scrolled");
-    }
-
-    // Scroll parallax depth for background video
-    if (ambientVideo) {
-      const scale = 1 + Math.min(scrollY / 8000, 0.08);
-      const translateY = Math.min(scrollY / 25, 40);
-      ambientVideo.style.transform = `scale(${scale}) translateY(-${translateY}px)`;
-    }
-  });
-
-  // Mobile nav toggle
-  const toggleBtn = document.getElementById("mobileNavToggle");
-  const navMenu = document.getElementById("navMenu");
-
-  if (toggleBtn && navMenu) {
-    toggleBtn.addEventListener("click", () => {
-      navMenu.classList.toggle("open");
-    });
-
-    navMenu.querySelectorAll(".nav-link").forEach((link) => {
-      link.addEventListener("click", () => {
-        navMenu.classList.remove("open");
+  // Initialize Lenis Smooth Scroll and GSAP ScrollTrigger
+  useEffect(() => {
+    // Lenis setup
+    let lenis;
+    if (typeof Lenis !== "undefined") {
+      lenis = new Lenis({
+        duration: 1.2,
+        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+        orientation: "vertical",
+        gestureOrientation: "vertical",
+        smoothWheel: true
       });
-    });
-  }
 
-  // Language toggle button
-  const langBtn = document.getElementById("langToggleBtn");
-  if (langBtn) {
-    langBtn.addEventListener("click", toggleLanguage);
-  }
-
-  // Set current year in footer
-  const yearEl = document.getElementById("currentYear");
-  if (yearEl) yearEl.textContent = new Date().getFullYear();
-
-  // Keyboard navigation
-  window.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") {
-      closeLightbox();
-      closeModal("roomModal");
-      closeModal("kainchiModal");
-      closeModal("vipModal");
+      function raf(time) {
+        lenis.raf(time);
+        requestAnimationFrame(raf);
+      }
+      requestAnimationFrame(raf);
     }
-  });
-});
+
+    // GSAP ScrollTrigger Animations
+    if (typeof gsap !== "undefined" && typeof ScrollTrigger !== "undefined") {
+      gsap.registerPlugin(ScrollTrigger);
+
+      // Scroll Progress Indicator
+      gsap.to(".scroll-progress-line", {
+        width: "100%",
+        ease: "none",
+        scrollTrigger: {
+          trigger: "body",
+          start: "top top",
+          end: "bottom bottom",
+          scrub: 0.3
+        }
+      });
+
+      // Hero Title Staggered Reveal
+      gsap.from(".hero-anim-title", {
+        y: 60,
+        opacity: 0,
+        duration: 1.4,
+        ease: "power3.out",
+        stagger: 0.2
+      });
+
+      // Vision Image Zoom on Scroll
+      gsap.to(".vision-zoom-img", {
+        scale: 1.15,
+        ease: "none",
+        scrollTrigger: {
+          trigger: "#vision",
+          start: "top bottom",
+          end: "bottom top",
+          scrub: true
+        }
+      });
+
+      // Parallax Cards
+      gsap.utils.toArray(".parallax-card").forEach((card) => {
+        gsap.to(card, {
+          y: -40,
+          ease: "none",
+          scrollTrigger: {
+            trigger: card,
+            start: "top bottom",
+            end: "bottom top",
+            scrub: true
+          }
+        });
+      });
+    }
+
+    return () => {
+      if (lenis) lenis.destroy();
+      if (typeof ScrollTrigger !== "undefined") ScrollTrigger.getAll().forEach((t) => t.kill());
+    };
+  }, []);
+
+  // Ambient Video Toggle
+  const toggleVideo = () => {
+    if (!videoRef.current) return;
+    if (videoRef.current.paused) {
+      videoRef.current.play();
+      setIsVideoPlaying(true);
+    } else {
+      videoRef.current.pause();
+      setIsVideoPlaying(false);
+    }
+  };
+
+  // Mountain Breeze Audio Synthesizer (Web Audio API)
+  const toggleAudio = () => {
+    if (!isAudioPlaying) {
+      try {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        const ctx = new AudioContext();
+        audioCtxRef.current = ctx;
+
+        const bufferSize = ctx.sampleRate * 2.5;
+        const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+        const data = buffer.getChannelData(0);
+        let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
+        for (let i = 0; i < bufferSize; i++) {
+          const white = Math.random() * 2 - 1;
+          b0 = 0.99886 * b0 + white * 0.0555179;
+          b1 = 0.99332 * b1 + white * 0.0750759;
+          b2 = 0.96900 * b2 + white * 0.1538520;
+          b3 = 0.86650 * b3 + white * 0.3104856;
+          b4 = 0.55000 * b4 + white * 0.5329522;
+          b5 = -0.7616 * b5 - white * 0.0168980;
+          data[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362) * 0.038;
+          b6 = white * 0.115926;
+        }
+
+        const source = ctx.createBufferSource();
+        source.buffer = buffer;
+        source.loop = true;
+        noiseNodeRef.current = source;
+
+        const filter = ctx.createBiquadFilter();
+        filter.type = "lowpass";
+        filter.frequency.setValueAtTime(450, ctx.currentTime);
+
+        const gain = ctx.createGain();
+        gain.gain.setValueAtTime(0.01, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.35, ctx.currentTime + 1.5);
+        gainNodeRef.current = gain;
+
+        source.connect(filter);
+        filter.connect(gain);
+        gain.connect(ctx.destination);
+
+        source.start();
+        setIsAudioPlaying(true);
+      } catch (e) {
+        console.warn("Audio Context blocked", e);
+      }
+    } else {
+      if (gainNodeRef.current && audioCtxRef.current) {
+        gainNodeRef.current.gain.exponentialRampToValueAtTime(0.001, audioCtxRef.current.currentTime + 0.8);
+        setTimeout(() => {
+          if (noiseNodeRef.current) noiseNodeRef.current.stop();
+          if (audioCtxRef.current) audioCtxRef.current.close();
+          setIsAudioPlaying(false);
+        }, 800);
+      }
+    }
+  };
+
+  const handleEnquiry = (e) => {
+    e.preventDefault();
+    const form = e.target;
+    const name = form.name.value;
+    const email = form.email.value;
+    const phone = form.phone.value;
+    const service = form.service.value;
+    const message = form.message.value;
+
+    const waText = `*Architectural Commission Enquiry - The Hill Serenity*\n• Name: ${name}\n• Phone: ${phone}\n• Email: ${email}\n• Interest: ${service}\n• Message: ${message || "N/A"}`;
+    const waUrl = `https://wa.me/919876543210?text=${encodeURIComponent(waText)}`;
+
+    setFormSubmitted(true);
+    window.open(waUrl, "_blank");
+  };
+
+  return (
+    <div className="relative min-h-screen text-cream">
+      {/* Scroll Progress Indicator */}
+      <div className="scroll-progress-line"></div>
+
+      {/* FIXED KLING-AI BACKGROUND VIDEO (CREAM WALLS & RED ROOF PROPERTY) */}
+      <div className="cinema-bg-container">
+        <video
+          ref={videoRef}
+          className="cinema-bg-video"
+          autoPlay
+          muted
+          loop
+          playsInline
+          poster="assets/property-cream-redroof-masterpiece.jpg"
+        >
+          <source src="assets/kling-ai-property-cream-redroof.mp4" type="video/mp4" />
+          <source src="assets/mountain-greenery-loop.mp4" type="video/mp4" />
+        </video>
+        <div className="cinema-bg-overlay"></div>
+      </div>
+
+      {/* FLOATING AMBIENT CONTROLLER */}
+      <aside className="ambient-pill-ctrl">
+        <button
+          onClick={toggleVideo}
+          className="flex items-center gap-1.5 text-xs text-gold hover:text-white transition"
+          title="Toggle Kling AI Cinematic Video Motion"
+        >
+          <span>{isVideoPlaying ? "⏸" : "▶"}</span>
+          <span>{isVideoPlaying ? "Motion" : "Paused"}</span>
+        </button>
+        <div className="w-px h-3 bg-white/20"></div>
+        <button
+          onClick={toggleAudio}
+          className="flex items-center gap-1.5 text-xs text-gold hover:text-white transition"
+          title="Toggle Real-Time Himalayan Mountain Breeze Sound"
+        >
+          <span>{isAudioPlaying ? "🔊" : "🔇"}</span>
+          <span>{isAudioPlaying ? "Pine Audio" : "Audio Off"}</span>
+        </button>
+      </aside>
+
+      {/* LUXURY NAVIGATION */}
+      <header className="fixed top-0 left-0 w-full z-50 bg-obsidian/75 backdrop-blur-md border-b border-border/40">
+        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+          <a href="#" className="flex items-center gap-3">
+            <div className="w-10 h-10 border border-gold flex items-center justify-center font-serif text-lg font-bold text-gold">
+              HS
+            </div>
+            <div>
+              <span className="font-serif text-lg tracking-widest text-cream uppercase block leading-none">
+                The Hill Serenity
+              </span>
+              <span className="text-[10px] uppercase tracking-[0.22em] text-gold-dark block mt-1">
+                Architecture & Sanctuary • Chafi
+              </span>
+            </div>
+          </a>
+
+          <nav className="hidden md:flex items-center gap-8 text-xs font-semibold uppercase tracking-[0.18em]">
+            <a href="#vision" className="hover:text-gold transition">Our Vision</a>
+            <a href="#process" className="hover:text-gold transition">The Process</a>
+            <a href="#model3d" className="hover:text-gold transition">3D Model</a>
+            <a href="#projects" className="hover:text-gold transition">Projects</a>
+            <a href="#about" className="hover:text-gold transition">About</a>
+            <a href="#contact" className="hover:text-gold transition">Contact</a>
+          </nav>
+
+          <a href="#contact" className="btn-gold-glow text-xs py-2.5 px-5">
+            Commission Sanctuary
+          </a>
+        </div>
+      </header>
+
+      {/* ==========================================================================
+          SECTION 1: HERO
+          ========================================================================== */}
+      <section className="relative min-h-screen flex flex-col justify-center px-6 pt-24 z-10">
+        <div className="max-w-5xl mx-auto text-center">
+          <div className="eyebrow-line mb-6 hero-anim-title">
+            Bespoke Himalayan Architecture • Chafi, Nainital
+          </div>
+
+          <h1 className="font-serif text-5xl md:text-7xl lg:text-8xl font-normal leading-[1.08] tracking-tight mb-8 hero-anim-title">
+            Where Stone Breathes <br />
+            <span className="italic text-gold">& Cedar Sings.</span>
+          </h1>
+
+          <p className="max-w-2xl mx-auto text-base md:text-lg text-cream/80 font-light leading-relaxed mb-10 hero-anim-title">
+            An award-winning 3-storey alpine sanctuary crafted with native river stone, warm cream limestone stucco, and four steep crimson red gables overlooking the South Gola Range near Kainchi Dham.
+          </p>
+
+          <div className="flex flex-wrap items-center justify-center gap-4 hero-anim-title">
+            <a href="#process" className="btn-gold-glow">
+              Explore The Construction Process ↓
+            </a>
+            <a href="#model3d" className="btn-outline-gold">
+              Inspect 3D Digital Model ⛶
+            </a>
+          </div>
+        </div>
+
+        {/* Hero Bottom Telemetry */}
+        <div className="absolute bottom-6 left-0 w-full px-8">
+          <div className="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-4 text-xs font-mono uppercase tracking-widest text-cream/60 border-t border-border/30 pt-4">
+            <div>Elevation: <span className="text-gold">5,400 FT</span></div>
+            <div>Coordinates: <span className="text-gold">29.3735° N, 79.5804° E</span></div>
+            <div>Proximity: <span className="text-gold">12 KM to Kainchi Dham</span></div>
+            <div>Architecture: <span className="text-gold">Cream Stucco • Red Roof</span></div>
+          </div>
+        </div>
+      </section>
+
+      {/* ==========================================================================
+          SECTION 2: OUR VISION
+          ========================================================================== */}
+      <section id="vision" className="relative py-32 px-6 z-10 bg-pine-dark/85 backdrop-blur-md border-y border-border/40">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            <div>
+              <div className="eyebrow-line mb-4">Architectural Philosophy</div>
+              <h2 className="font-serif text-4xl md:text-6xl font-normal leading-tight mb-8">
+                Architecture as a Sacred Dialogue with the Ridge.
+              </h2>
+              <p className="text-cream/80 leading-relaxed text-base mb-6">
+                True mountain luxury does not impose itself upon the landscape. It listens. In the valley of Chafi, where the Kalsa river carves through deodar-forested slopes, our architectural practice builds living sanctuaries that belong to the earth.
+              </p>
+              <p className="text-cream/80 leading-relaxed text-base mb-10">
+                Every stone is hand-hewn by generational Kumaoni masons. The signature 4-dormer gabled roofline naturally sheds heavy Himalayan rains and winter flurries, while generous floor-to-ceiling double glazing invites the morning mist and golden mountain twilight inside.
+              </p>
+
+              <div className="grid grid-cols-3 gap-6 pt-6 border-t border-border/40">
+                <div>
+                  <div className="font-serif text-3xl text-gold">100%</div>
+                  <div className="text-[11px] uppercase tracking-wider text-cream/70 mt-1">Native River Stone</div>
+                </div>
+                <div>
+                  <div className="font-serif text-3xl text-gold">4 Gables</div>
+                  <div className="text-[11px] uppercase tracking-wider text-cream/70 mt-1">Crimson Red Roof</div>
+                </div>
+                <div>
+                  <div className="font-serif text-3xl text-gold">Passive</div>
+                  <div className="text-[11px] uppercase tracking-wider text-cream/70 mt-1">Solar Thermal Design</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Cinematic Photography Frame */}
+            <div className="relative rounded-sm overflow-hidden border border-border shadow-2xl">
+              <img
+                src="assets/property-cream-redroof-masterpiece.jpg"
+                alt="The Hill Serenity in Cream Colour and Red Roof at Golden Hour"
+                className="w-full h-[520px] object-cover vision-zoom-img"
+              />
+              <div className="absolute bottom-4 left-4 bg-obsidian/85 backdrop-blur-md px-4 py-2 border border-border text-xs uppercase tracking-widest text-gold">
+                The Hill Serenity • Chafi Valley Elevation
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ==========================================================================
+          SECTION 3: OUR PROCESS (BRICK BY BRICK, FLOOR BY FLOOR)
+          Inspired by MATTXWEBB viral construction evolution
+          ========================================================================== */}
+      <section id="process" className="relative py-32 px-6 z-10 bg-obsidian/95">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <div className="eyebrow-line mb-4">Evolution of a Masterpiece</div>
+            <h2 className="font-serif text-4xl md:text-6xl font-normal leading-tight mb-4">
+              Brick by Brick. Floor by Floor.
+            </h2>
+            <p className="text-cream/75 text-base">
+              Follow the construction metamorphosis from mountain earthwork to structural timber gables, handcrafted cedar interiors, and the completed glowing sanctuary.
+            </p>
+
+            {/* Interactive Stage Selector Buttons */}
+            <div className="flex flex-wrap items-center justify-center gap-2 mt-8">
+              {PROCESS_STAGES.map((st, i) => (
+                <button
+                  key={st.id}
+                  onClick={() => setActiveStage(i)}
+                  className={`stage-nav-pill ${activeStage === i ? "active" : ""}`}
+                >
+                  {st.tag}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Active Stage Display Card */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center glass-panel p-8 md:p-12 rounded-sm">
+            <div className="lg:col-span-7">
+              <div className="process-stage-visual">
+                <img
+                  src={PROCESS_STAGES[activeStage].image}
+                  alt={PROCESS_STAGES[activeStage].title}
+                  className="process-stage-img"
+                />
+                <div className="absolute top-4 left-4 bg-obsidian/90 backdrop-blur-md px-3.5 py-1.5 border border-border text-xs uppercase tracking-widest text-gold font-bold">
+                  {PROCESS_STAGES[activeStage].tag}
+                </div>
+              </div>
+            </div>
+
+            <div className="lg:col-span-5">
+              <span className="text-xs uppercase tracking-[0.2em] text-gold-dark font-bold block mb-2">
+                Construction Milestone {activeStage + 1} of 4
+              </span>
+              <h3 className="font-serif text-3xl md:text-4xl text-cream mb-4">
+                {PROCESS_STAGES[activeStage].title}
+              </h3>
+              <p className="text-cream/80 leading-relaxed text-sm mb-6">
+                {PROCESS_STAGES[activeStage].description}
+              </p>
+
+              <h4 className="text-xs uppercase tracking-wider text-gold mb-3 font-semibold">
+                Key Engineering Deliverables
+              </h4>
+              <ul className="space-y-2 mb-8">
+                {PROCESS_STAGES[activeStage].specs.map((spec, sIdx) => (
+                  <li key={sIdx} className="text-xs text-cream/75 flex items-center gap-2.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-gold"></span>
+                    <span>{spec}</span>
+                  </li>
+                ))}
+              </ul>
+
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setActiveStage((prev) => (prev > 0 ? prev - 1 : 3))}
+                  className="btn-outline-gold text-xs py-2 px-4"
+                >
+                  ← Previous Stage
+                </button>
+                <button
+                  onClick={() => setActiveStage((prev) => (prev < 3 ? prev + 1 : 0))}
+                  className="btn-gold-glow text-xs py-2 px-4"
+                >
+                  Next Stage →
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ==========================================================================
+          SECTION 4: 3D DIGITAL TWIN & SPLINE MODEL
+          ========================================================================== */}
+      <section id="model3d" className="relative py-32 px-6 z-10 bg-pine-dark/90 backdrop-blur-md border-t border-border/40">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center max-w-3xl mx-auto mb-12">
+            <div className="eyebrow-line mb-4">Real-Time 3D Digital Twin</div>
+            <h2 className="font-serif text-4xl md:text-6xl font-normal leading-tight mb-4">
+              Explore the 3D Architecture
+            </h2>
+            <p className="text-cream/75 text-base">
+              Interact with the full three-dimensional spatial blueprint. Inspect the 4 crimson red roof gables, cream stone facade, curved veranda suites, and second-level sun terrace in 360 degrees.
+            </p>
+          </div>
+
+          <Interactive3DViewer />
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
+            <div className="glass-panel-subtle p-4 rounded text-center">
+              <span className="block text-gold font-serif text-xl">4 Alpine Gables</span>
+              <span className="text-[11px] uppercase tracking-wider text-cream/60">Terracotta Red Pitch</span>
+            </div>
+            <div className="glass-panel-subtle p-4 rounded text-center">
+              <span className="block text-gold font-serif text-xl">Sun Terrace</span>
+              <span className="text-[11px] uppercase tracking-wider text-cream/60">Outdoor Cafe Deck</span>
+            </div>
+            <div className="glass-panel-subtle p-4 rounded text-center">
+              <span className="block text-gold font-serif text-xl">Covered Portico</span>
+              <span className="text-[11px] uppercase tracking-wider text-cream/60">Protected Ground Parking</span>
+            </div>
+            <div className="glass-panel-subtle p-4 rounded text-center">
+              <span className="block text-gold font-serif text-xl">Curved Balconies</span>
+              <span className="text-[11px] uppercase tracking-wider text-cream/60">Panoramic Valley Framing</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ==========================================================================
+          SECTION 5: PROJECTS GALLERY
+          ========================================================================== */}
+      <section id="projects" className="relative py-32 px-6 z-10 bg-obsidian/95 border-t border-border/40">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
+            <div>
+              <div className="eyebrow-line mb-4">Selected Portfolio</div>
+              <h2 className="font-serif text-4xl md:text-6xl font-normal leading-tight">
+                Himalayan Masterpieces
+              </h2>
+            </div>
+            <p className="text-cream/70 max-w-md text-sm">
+              Each residential commission represents a custom synthesis of indigenous hill geology, sustainable timber engineering, and quiet five-star luxury.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {PROJECTS.map((proj) => (
+              <div
+                key={proj.id}
+                className="group relative rounded-sm overflow-hidden border border-border/50 bg-pine-dark/60 cursor-pointer transition-all duration-500 hover:border-gold hover:shadow-2xl"
+                onClick={() => setSelectedProject(proj)}
+              >
+                <div className="h-[360px] overflow-hidden">
+                  <img
+                    src={proj.image}
+                    alt={proj.title}
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  />
+                </div>
+                <div className="p-8">
+                  <div className="flex justify-between items-start mb-2">
+                    <span className="text-xs uppercase tracking-widest text-gold font-semibold">
+                      {proj.category}
+                    </span>
+                    <span className="text-xs font-mono text-cream/50">
+                      {proj.specs}
+                    </span>
+                  </div>
+                  <h3 className="font-serif text-2xl md:text-3xl text-cream group-hover:text-gold transition">
+                    {proj.title}
+                  </h3>
+                  <p className="text-cream/70 text-sm mt-2 leading-relaxed">
+                    {proj.description}
+                  </p>
+                  <div className="mt-6 flex items-center gap-2 text-xs uppercase tracking-wider text-gold font-bold">
+                    <span>Inspect Case Study</span>
+                    <span>→</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ==========================================================================
+          SECTION 6: ABOUT US
+          ========================================================================== */}
+      <section id="about" className="relative py-32 px-6 z-10 bg-pine-dark/85 backdrop-blur-md border-t border-border/40">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
+            <div className="lg:col-span-6">
+              <div className="eyebrow-line mb-4">Pedigree & Heritage</div>
+              <h2 className="font-serif text-4xl md:text-6xl font-normal leading-tight mb-8">
+                Master Builders of the Kumaon Hills.
+              </h2>
+              <p className="text-cream/80 leading-relaxed text-base mb-6">
+                Founded with a deep reverence for Uttarakhand's topography, our design-build studio fuses classical vernacular traditions with contemporary architectural precision. We build with stone, wood, slate, and glass to create heirloom residences that endure for generations.
+              </p>
+              <p className="text-cream/80 leading-relaxed text-base mb-8">
+                Operating close to Kainchi Dham, we honor Maharaj-ji's teaching of harmony with nature. We maintain a zero single-use plastic standard, source over 80% of building materials within 40 km, and employ local village artisans.
+              </p>
+
+              <div className="flex gap-4">
+                <a href="#contact" className="btn-gold-glow">Commission a Project</a>
+                <a href="https://maps.app.goo.gl/3wiknEp5PKnJ9Vbb9" target="_blank" rel="noopener noreferrer" className="btn-outline-gold">
+                  Locate on Google Maps ↗
+                </a>
+              </div>
+            </div>
+
+            <div className="lg:col-span-6 grid grid-cols-2 gap-4">
+              <div className="rounded border border-border overflow-hidden h-72">
+                <img
+                  src="assets/architecture-isometric-3d.jpg"
+                  alt="3D Architectural Model"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div className="rounded border border-border overflow-hidden h-72 mt-8">
+                <img
+                  src="assets/architecture-elevation-front.jpg"
+                  alt="Front Elevation"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ==========================================================================
+          SECTION 7: CONTACT & COMMISSION FORM
+          ========================================================================== */}
+      <section id="contact" className="relative py-32 px-6 z-10 bg-obsidian">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-16">
+            <div className="eyebrow-line mb-4">Start Your Commission</div>
+            <h2 className="font-serif text-4xl md:text-6xl font-normal leading-tight mb-4">
+              Begin Your Architectural Journey
+            </h2>
+            <p className="text-cream/70 text-base max-w-xl mx-auto">
+              Whether you are seeking early founding guest reservations or commissioning a private mountain residence, our studio is at your service.
+            </p>
+          </div>
+
+          <div className="glass-panel p-8 md:p-14 rounded-sm border border-border">
+            {formSubmitted ? (
+              <div className="text-center py-12">
+                <div className="text-4xl mb-4">✨</div>
+                <h3 className="font-serif text-3xl text-cream mb-2">Enquiry Sent with Honor</h3>
+                <p className="text-cream/80 text-sm max-w-md mx-auto mb-6">
+                  Your architectural consultation request has been forwarded directly to our principal architects. Opening WhatsApp to connect with our concierge...
+                </p>
+                <button
+                  onClick={() => setFormSubmitted(false)}
+                  className="btn-outline-gold text-xs"
+                >
+                  Send Another Enquiry
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={handleEnquiry} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-xs uppercase tracking-wider text-gold mb-2 font-semibold">
+                    Your Full Name *
+                  </label>
+                  <input
+                    type="text"
+                    name="name"
+                    required
+                    placeholder="Vikramaditya Sharma"
+                    className="w-full bg-obsidian/80 border border-border/70 rounded-sm px-4 py-3 text-cream text-sm focus:border-gold outline-none transition"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs uppercase tracking-wider text-gold mb-2 font-semibold">
+                    Phone / WhatsApp Number *
+                  </label>
+                  <input
+                    type="tel"
+                    name="phone"
+                    required
+                    placeholder="+91 98765 43210"
+                    className="w-full bg-obsidian/80 border border-border/70 rounded-sm px-4 py-3 text-cream text-sm focus:border-gold outline-none transition"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs uppercase tracking-wider text-gold mb-2 font-semibold">
+                    Email Address *
+                  </label>
+                  <input
+                    type="email"
+                    name="email"
+                    required
+                    placeholder="you@domain.com"
+                    className="w-full bg-obsidian/80 border border-border/70 rounded-sm px-4 py-3 text-cream text-sm focus:border-gold outline-none transition"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs uppercase tracking-wider text-gold mb-2 font-semibold">
+                    Interest / Service *
+                  </label>
+                  <select
+                    name="service"
+                    className="w-full bg-obsidian/80 border border-border/70 rounded-sm px-4 py-3 text-cream text-sm focus:border-gold outline-none transition"
+                  >
+                    <option value="Boutique Stay Reservation at The Hill Serenity">
+                      Boutique Stay Reservation at The Hill Serenity
+                    </option>
+                    <option value="Bespoke Architectural Mountain Commission">
+                      Bespoke Architectural Mountain Commission
+                    </option>
+                    <option value="Kainchi Dham Pilgrimage VIP Package">
+                      Kainchi Dham Pilgrimage VIP Package
+                    </option>
+                    <option value="Property Investor / Buyout Enquiry">
+                      Property Investor / Buyout Enquiry
+                    </option>
+                  </select>
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="block text-xs uppercase tracking-wider text-gold mb-2 font-semibold">
+                    Vision & Project Notes
+                  </label>
+                  <textarea
+                    name="message"
+                    rows="4"
+                    placeholder="Tell us about your proposed timeline, preferred suite, or mountain residence vision..."
+                    className="w-full bg-obsidian/80 border border-border/70 rounded-sm px-4 py-3 text-cream text-sm focus:border-gold outline-none transition"
+                  ></textarea>
+                </div>
+
+                <div className="md:col-span-2 flex flex-col md:flex-row items-center justify-between gap-4 pt-4 border-t border-border/40">
+                  <button type="submit" className="btn-gold-glow w-full md:w-auto">
+                    Submit Enquiry & Connect on WhatsApp 💬
+                  </button>
+                  <span className="text-xs text-cream/50">
+                    🔒 Strict Confidentiality • Direct Principal Architect Response
+                  </span>
+                </div>
+              </form>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* FOOTER */}
+      <footer className="border-t border-border/30 bg-obsidian py-12 px-6 relative z-10 text-xs text-cream/60">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="flex items-center gap-3">
+            <span className="font-serif text-lg tracking-widest text-cream">THE HILL SERENITY</span>
+            <span>•</span>
+            <span>South Gola Range, Chafi, Nainital, Uttarakhand 263136</span>
+          </div>
+          <div>
+            © {new Date().getFullYear()} The Hill Serenity Architecture. Crafted with React, GSAP & Kling AI.
+          </div>
+        </div>
+      </footer>
+
+      {/* CASE STUDY MODAL */}
+      {selectedProject && (
+        <div
+          className="fixed inset-0 z-50 bg-obsidian/90 backdrop-blur-xl flex items-center justify-center p-6"
+          onClick={() => setSelectedProject(null)}
+        >
+          <div
+            className="glass-panel max-w-3xl w-full p-8 md:p-12 rounded relative border border-gold"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setSelectedProject(null)}
+              className="absolute top-6 right-6 text-xl text-cream/70 hover:text-white"
+            >
+              ✕
+            </button>
+            <span className="text-xs uppercase tracking-widest text-gold font-bold block mb-1">
+              {selectedProject.category} • {selectedProject.location}
+            </span>
+            <h3 className="font-serif text-3xl text-cream mb-4">{selectedProject.title}</h3>
+            <img
+              src={selectedProject.image}
+              alt={selectedProject.title}
+              className="w-full h-80 object-cover rounded mb-6 border border-border"
+            />
+            <p className="text-cream/80 text-sm leading-relaxed mb-6">{selectedProject.description}</p>
+            <div className="flex gap-4">
+              <a href="#contact" onClick={() => setSelectedProject(null)} className="btn-gold-glow text-xs">
+                Inquire on this Architecture
+              </a>
+              <button onClick={() => setSelectedProject(null)} className="btn-outline-gold text-xs">
+                Close Inspector
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Mount React Root
+const rootElement = document.getElementById("root");
+if (rootElement) {
+  const root = ReactDOM.createRoot(rootElement);
+  root.render(<ArchitectureApp />);
+}
