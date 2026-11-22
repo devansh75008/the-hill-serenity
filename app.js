@@ -1,7 +1,8 @@
 /**
  * THE HILL SERENITY - LUXURY BOUTIQUE SANCTUARY
  * Chafi, Nainital District, Uttarakhand, India
- * Frontend Interaction, Booking Engine Hooks, Gallery Lightbox, and Multi-language Logic
+ * Frontend Interaction, Ambient Background Video Engine, 3D Architecture Switcher,
+ * Booking Engine Hooks, Gallery Lightbox, and Multi-language Logic
  */
 
 // ==========================================================================
@@ -54,16 +55,170 @@ function setPhotoMode(showSpecs) {
 }
 
 // ==========================================================================
-// 3. DATE INITIALIZATION & QUICK AVAILABILITY BAR
+// 3. AMBIENT BACKGROUND VIDEO & MOUNTAIN AUDIO ENGINE
+// ==========================================================================
+let isVideoPlaying = true;
+let isAudioPlaying = false;
+let audioCtx = null;
+let noiseNode = null;
+let gainNode = null;
+
+function toggleAmbientVideo() {
+  const video = document.getElementById("bgAmbientVideo");
+  const icon = document.getElementById("videoStatusIcon");
+  const label = document.getElementById("videoStatusLabel");
+
+  if (!video) return;
+
+  if (video.paused) {
+    video.play();
+    isVideoPlaying = true;
+    if (icon) icon.textContent = "⏸";
+    if (label) label.textContent = "Greenery Motion";
+  } else {
+    video.pause();
+    isVideoPlaying = false;
+    if (icon) icon.textContent = "▶";
+    if (label) label.textContent = "Motion Paused";
+  }
+}
+
+let opacityModes = ["normal", "high", "soft"];
+let currentOpacityIndex = 0;
+
+function cycleVideoOpacity() {
+  currentOpacityIndex = (currentOpacityIndex + 1) % opacityModes.length;
+  const mode = opacityModes[currentOpacityIndex];
+  const label = document.getElementById("opacityLabel");
+
+  document.body.classList.remove("video-opacity-high", "video-opacity-soft");
+
+  if (mode === "high") {
+    document.body.classList.add("video-opacity-high");
+    if (label) label.textContent = "Vibrant Green";
+  } else if (mode === "soft") {
+    document.body.classList.add("video-opacity-soft");
+    if (label) label.textContent = "Soft Mist";
+  } else {
+    if (label) label.textContent = "Cinema";
+  }
+}
+
+/**
+ * Web Audio API Mountain Wind Synthesizer
+ * Generates organic, calming Himalayan mountain breeze without external audio files
+ */
+function toggleAmbientAudio() {
+  const icon = document.getElementById("soundStatusIcon");
+  const label = document.getElementById("soundStatusLabel");
+
+  if (!isAudioPlaying) {
+    try {
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      audioCtx = new AudioContext();
+
+      // Buffer for pink noise (mountain breeze)
+      const bufferSize = audioCtx.sampleRate * 3;
+      const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+      const data = buffer.getChannelData(0);
+      let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
+      for (let i = 0; i < bufferSize; i++) {
+        const white = Math.random() * 2 - 1;
+        b0 = 0.99886 * b0 + white * 0.0555179;
+        b1 = 0.99332 * b1 + white * 0.0750759;
+        b2 = 0.96900 * b2 + white * 0.1538520;
+        b3 = 0.86650 * b3 + white * 0.3104856;
+        b4 = 0.55000 * b4 + white * 0.5329522;
+        b5 = -0.7616 * b5 - white * 0.0168980;
+        data[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362) * 0.035;
+        b6 = white * 0.115926;
+      }
+
+      noiseNode = audioCtx.createBufferSource();
+      noiseNode.buffer = buffer;
+      noiseNode.loop = true;
+
+      // Filter for gentle mountain wind
+      const filter = audioCtx.createBiquadFilter();
+      filter.type = "lowpass";
+      filter.frequency.setValueAtTime(420, audioCtx.currentTime);
+
+      gainNode = audioCtx.createGain();
+      gainNode.gain.setValueAtTime(0.01, audioCtx.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.35, audioCtx.currentTime + 2);
+
+      noiseNode.connect(filter);
+      filter.connect(gainNode);
+      gainNode.connect(audioCtx.destination);
+
+      noiseNode.start();
+      isAudioPlaying = true;
+      if (icon) icon.textContent = "🔊";
+      if (label) label.textContent = "Pine Wind On";
+    } catch (err) {
+      console.warn("Web Audio not supported or blocked", err);
+    }
+  } else {
+    if (gainNode && audioCtx) {
+      gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 1);
+      setTimeout(() => {
+        if (noiseNode) noiseNode.stop();
+        if (audioCtx) audioCtx.close();
+        isAudioPlaying = false;
+        if (icon) icon.textContent = "🔇";
+        if (label) label.textContent = "Mountain Audio";
+      }, 1000);
+    }
+  }
+}
+
+// ==========================================================================
+// 4. ARCHITECTURAL 3D RENDER SWITCHER
+// ==========================================================================
+const ARCH_RENDERS = {
+  front: {
+    src: "assets/architecture-elevation-front.jpg",
+    badge: "Front Elevation • 3 Storeys & 4 Gabled Dormers",
+    caption: "Architectural front elevation showing drive-in reception portico, curved suite balconies, and top-floor valley lookout."
+  },
+  isometric: {
+    src: "assets/architecture-isometric-3d.jpg",
+    badge: "3D Isometric View • Arched Stone Wing & Tea Terrace",
+    caption: "Elevated aerial view highlighting the 2nd-floor outdoor sun terrace with dining umbrella, arched river-stone wall, and road approach."
+  }
+};
+
+function switchArchRender(type, btn) {
+  const data = ARCH_RENDERS[type];
+  if (!data) return;
+
+  const img = document.getElementById("archMainRender");
+  const badge = document.getElementById("archRenderBadge");
+  const buttons = document.querySelectorAll(".arch-tab-btn");
+
+  if (img) {
+    img.style.opacity = "0.4";
+    setTimeout(() => {
+      img.src = data.src;
+      img.style.opacity = "1";
+    }, 150);
+  }
+
+  if (badge) badge.textContent = data.badge;
+
+  buttons.forEach((b) => b.classList.remove("active"));
+  if (btn) btn.classList.add("active");
+}
+
+// ==========================================================================
+// 5. DATE INITIALIZATION & QUICK AVAILABILITY BAR
 // ==========================================================================
 function initDatePickers() {
   const today = new Date();
   
-  // Tomorrow for check-in
   const checkInDate = new Date();
   checkInDate.setDate(today.getDate() + 1);
 
-  // 3 days later for check-out
   const checkOutDate = new Date();
   checkOutDate.setDate(today.getDate() + 4);
 
@@ -95,7 +250,6 @@ function handleQuickCheck(e) {
   const guests = document.getElementById("quickGuests").value;
   const purpose = document.getElementById("quickPurpose").value;
 
-  // Sync to primary reservation form
   const formIn = document.getElementById("formCheckIn");
   const formOut = document.getElementById("formCheckOut");
   const formGuests = document.getElementById("formGuests");
@@ -112,7 +266,6 @@ function handleQuickCheck(e) {
   }
   if (formPurpose) formPurpose.value = purpose;
 
-  // Smooth scroll to contact section
   const contactSec = document.getElementById("contact");
   if (contactSec) {
     contactSec.scrollIntoView({ behavior: "smooth" });
@@ -122,7 +275,7 @@ function handleQuickCheck(e) {
 }
 
 // ==========================================================================
-// 4. ROOMS FILTER & MODAL DATA
+// 6. ROOMS FILTER & MODAL DATA
 // ==========================================================================
 const ROOM_DATA = {
   deodar: {
@@ -270,12 +423,14 @@ function prefillBooking(roomName) {
 }
 
 // ==========================================================================
-// 5. GALLERY FILTER & FULLSCREEN LIGHTBOX
+// 7. GALLERY FILTER & FULLSCREEN LIGHTBOX (INCLUDING 3D ARCHITECTURE)
 // ==========================================================================
 const GALLERY_ITEMS = [
-  { src: "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1600&q=85", title: "Handcrafted River Stone Façade", sub: "Architecture & Grounds • Chafi" },
+  { src: "assets/architecture-elevation-front.jpg", title: "Architectural Front Elevation", sub: "3-Storey Alpine Dormers, Covered Portico & Balconies" },
+  { src: "assets/architecture-isometric-3d.jpg", title: "Architectural 3D Isometric View", sub: "Arched Stone Feature Wall, Tea Terrace & Valley Approach" },
+  { src: "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1600&q=85", title: "Handcrafted River Stone Verandas", sub: "Architecture & Grounds • Chafi" },
   { src: "https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=1600&q=85", title: "The Deodar Valley Suite", sub: "Suites & Interiors • Veranda View" },
-  { src: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1600&q=85", title: "Morning Mist Rising Over Chafi", sub: "Surroundings • Kumaon Pine Valley" },
+  { src: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1600&q=85", title: "Morning Mist Rising Over South Gola Range", sub: "Surroundings • Kumaon Pine Valley" },
   { src: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=1600&q=85", title: "Organic Kumaoni Harvest", sub: "Cuisine & Farm • The Cedar Hearth" },
   { src: "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=1600&q=85", title: "Forest-View Soaking Tub", sub: "Suites & Interiors • Brass & Stone" },
   { src: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1600&q=85", title: "Kalsa Riverbank Pathway", sub: "Surroundings • Pure Mountain Waters" }
@@ -330,14 +485,14 @@ function handleLightboxBackdrop(e) {
 }
 
 // ==========================================================================
-// 6. KAINCHI DHAM GUIDE MODAL
+// 8. KAINCHI DHAM GUIDE MODAL
 // ==========================================================================
 function openKainchiGuideModal() {
   openModal("kainchiModal");
 }
 
 // ==========================================================================
-// 7. GENERIC MODAL CONTROLLERS
+// 9. GENERIC MODAL CONTROLLERS
 // ==========================================================================
 function openModal(id) {
   const el = document.getElementById(id);
@@ -362,7 +517,7 @@ function handleBackdropClick(e, id) {
 }
 
 // ==========================================================================
-// 8. VIP WAITLIST FORM HANDLING
+// 10. VIP WAITLIST FORM HANDLING
 // ==========================================================================
 function handleWaitlistSubmit(e) {
   e.preventDefault();
@@ -387,7 +542,6 @@ function handleWaitlistSubmit(e) {
     console.warn("Storage not available", err);
   }
 
-  // Display VIP Voucher Modal
   const modalContent = document.getElementById("vipModalContent");
   modalContent.innerHTML = `
     <div style="font-size: 2.8rem; margin-bottom: 0.5rem;">✨</div>
@@ -419,7 +573,7 @@ function handleWaitlistSubmit(e) {
 }
 
 // ==========================================================================
-// 9. RESERVATION ENQUIRY & WHATSAPP ENGINE DISPATCH
+// 11. RESERVATION ENQUIRY & WHATSAPP ENGINE DISPATCH
 // ==========================================================================
 function handleEnquirySubmit(e) {
   e.preventDefault();
@@ -435,7 +589,6 @@ function handleEnquirySubmit(e) {
 
   const refCode = "HS-RES-" + Math.floor(10000 + Math.random() * 90000);
 
-  // Construct structured WhatsApp message
   const waText = 
 `*New Reservation Enquiry - The Hill Serenity, Chafi*
 Ref: ${refCode}
@@ -452,15 +605,12 @@ Ref: ${refCode}
 _Please confirm room availability and applicable pre-launch privileges._`;
 
   const encodedWa = encodeURIComponent(waText);
-  // Default property WhatsApp line: +91 98765 43210
   const waUrl = `https://wa.me/919876543210?text=${encodedWa}`;
 
-  // Log or send to webhook / booking engine hook
   dispatchBookingEngineHook({
     refCode, name, phone, email, room, checkIn, checkOut, guests, purpose, notes
   });
 
-  // Display Confirmation Dialogue with direct action
   const modalContent = document.getElementById("vipModalContent");
   modalContent.innerHTML = `
     <div style="font-size: 2.8rem; margin-bottom: 0.5rem;">🏔️</div>
@@ -493,28 +643,17 @@ _Please confirm room availability and applicable pre-launch privileges._`;
   document.getElementById("enquiryForm").reset();
 }
 
-/**
- * Extensible hook for external hotel management & CRM engines
- * (e.g. Razorpay Payment Links, Cloudbeds API, Zoho CRM webhook, Google Sheets)
- */
 function dispatchBookingEngineHook(data) {
   console.log("[The Hill Serenity] Booking Engine Hook Payload:", data);
-  // To connect Razorpay, Cloudbeds or Zoho:
-  // fetch("https://your-crm-endpoint.com/api/bookings", {
-  //   method: "POST",
-  //   headers: { "Content-Type": "application/json" },
-  //   body: JSON.stringify(data)
-  // }).catch(err => console.error("Hook dispatch error", err));
 }
 
 // ==========================================================================
-// 10. FAQ ACCORDION
+// 12. FAQ ACCORDION
 // ==========================================================================
 function toggleFaq(btn) {
   const item = btn.closest(".faq-item");
   const isActive = item.classList.contains("active");
 
-  // Optional: close all other items for clean accordion effect
   document.querySelectorAll(".faq-item").forEach((el) => {
     el.classList.remove("active");
   });
@@ -525,7 +664,7 @@ function toggleFaq(btn) {
 }
 
 // ==========================================================================
-// 11. MULTI-LANGUAGE PREVIEW TOGGLE (ENGLISH / HINDI)
+// 13. MULTI-LANGUAGE PREVIEW TOGGLE (ENGLISH / HINDI)
 // ==========================================================================
 let isHindi = false;
 
@@ -547,18 +686,29 @@ function toggleLanguage() {
 }
 
 // ==========================================================================
-// 12. MOBILE MENU & SCROLL EFFECTS
+// 14. MOBILE MENU & SCROLL EFFECTS
 // ==========================================================================
 document.addEventListener("DOMContentLoaded", () => {
   initDatePickers();
 
-  // Sticky header class
   const header = document.getElementById("siteHeader");
+  const ambientVideo = document.getElementById("bgAmbientVideo");
+
   window.addEventListener("scroll", () => {
-    if (window.scrollY > 40) {
+    const scrollY = window.scrollY;
+
+    // Header sticky transition
+    if (scrollY > 40) {
       header.classList.add("scrolled");
     } else {
       header.classList.remove("scrolled");
+    }
+
+    // Scroll parallax depth for background video
+    if (ambientVideo) {
+      const scale = 1 + Math.min(scrollY / 8000, 0.08);
+      const translateY = Math.min(scrollY / 25, 40);
+      ambientVideo.style.transform = `scale(${scale}) translateY(-${translateY}px)`;
     }
   });
 
@@ -588,7 +738,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const yearEl = document.getElementById("currentYear");
   if (yearEl) yearEl.textContent = new Date().getFullYear();
 
-  // Keyboard navigation for lightbox
+  // Keyboard navigation
   window.addEventListener("keydown", (e) => {
     if (e.key === "Escape") {
       closeLightbox();
@@ -598,4 +748,3 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 });
-

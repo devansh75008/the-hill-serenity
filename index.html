@@ -17,8 +17,8 @@
   <!-- Geo Tags for Local SEO -->
   <meta name="geo.region" content="IN-UT">
   <meta name="geo.placename" content="Chafi, Nainital District, Uttarakhand">
-  <meta name="geo.position" content="29.3833;79.5667">
-  <meta name="ICBM" content="29.3833, 79.5667">
+  <meta name="geo.position" content="29.3735;79.5804">
+  <meta name="ICBM" content="29.3735, 79.5804">
 
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="hotel">
@@ -64,7 +64,7 @@
         "image": "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1600&q=80",
         "address": {
           "@type": "PostalAddress",
-          "streetAddress": "Village Chafi, Near Kalsa River Bridge",
+          "streetAddress": "South Gola Range, Village Chafi, Near Kalsa River Bridge",
           "addressLocality": "Chafi, Bhowali Tehsil",
           "addressRegion": "Uttarakhand",
           "postalCode": "263136",
@@ -72,8 +72,8 @@
         },
         "geo": {
           "@type": "GeoCoordinates",
-          "latitude": "29.3833",
-          "longitude": "79.5667"
+          "latitude": "29.3735",
+          "longitude": "79.5804"
         },
         "starRating": {
           "@type": "Rating",
@@ -137,6 +137,38 @@
 
 <body>
 
+  <!-- Ambient Fixed Background Video: Lush Pine Greenery & Mountain Mist (Plays continuously while scrolling) -->
+  <div class="site-ambient-video-wrapper" aria-hidden="true">
+    <video 
+      id="bgAmbientVideo" 
+      class="ambient-bg-video" 
+      autoplay 
+      muted 
+      loop 
+      playsinline 
+      preload="auto"
+      poster="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=2000&q=80"
+    >
+      <source src="assets/mountain-greenery-loop.mp4" type="video/mp4">
+    </video>
+    <div class="ambient-video-overlay"></div>
+  </div>
+
+  <!-- Floating Ambient Control Pill (Greenery Motion, Mountain Pine Audio, Cinema/Vibrant Opacity) -->
+  <aside class="ambient-controls-pill" id="ambientControlPill" aria-label="Ambient Background Video & Sound Controller">
+    <button class="ctrl-btn" id="btnToggleVideo" onclick="toggleAmbientVideo()" title="Play/Pause Background Greenery Video">
+      <span id="videoStatusIcon">⏸</span> <span id="videoStatusLabel">Greenery Motion</span>
+    </button>
+    <div class="ctrl-divider"></div>
+    <button class="ctrl-btn" id="btnToggleSound" onclick="toggleAmbientAudio()" title="Toggle Calming Himalayan Mountain Breeze Sound">
+      <span id="soundStatusIcon">🔇</span> <span id="soundStatusLabel">Mountain Audio</span>
+    </button>
+    <div class="ctrl-divider"></div>
+    <button class="ctrl-btn" onclick="cycleVideoOpacity()" title="Adjust Background Greenery Intensity (Cinema / Vibrant / Mist)">
+      <span>👁️</span> <span id="opacityLabel">Cinema</span>
+    </button>
+  </aside>
+
   <!-- Top Announcement Bar -->
   <aside class="top-announcement" aria-label="Pre-launch announcement">
     <div class="container-wide announcement-inner">
@@ -188,7 +220,7 @@
       <nav aria-label="Main Navigation">
         <ul class="nav-menu" id="navMenu">
           <li><a href="#home" class="nav-link active">Home</a></li>
-          <li><a href="#rooms" class="nav-link">Suites & Rooms</a></li>
+          <li><a href="#architecture" class="nav-link">Architecture</a></li>\n          <li><a href="#rooms" class="nav-link">Suites & Rooms</a></li>
           <li><a href="#kainchi" class="nav-link" style="color: var(--color-gold-dark); font-weight: 600;">Kainchi
               Dham</a></li>
           <li><a href="#experiences" class="nav-link">Experiences</a></li>
@@ -365,7 +397,7 @@
     <!-- ==========================================================================
          SECTION 2: WELCOME STORY & BRAND PHILOSOPHY
          ========================================================================== -->
-    <section class="welcome-section section-padding" id="about">
+    <section class="welcome-section section-padding section-translucent-bg" id="about">
       <div class="container">
         <div class="story-grid">
           <div class="story-content">
@@ -432,9 +464,89 @@
     </section>
 
     <!-- ==========================================================================
+         SECTION 2B: ARCHITECTURAL BLUEPRINT & 3D SPATIAL VISION
+         ========================================================================== -->
+    <section class="architecture-section section-padding" id="architecture">
+      <div class="container">
+        <div class="section-header">
+          <span class="eyebrow">Spatial Blueprint & 3D Design</span>
+          <h2>Architectural Vision & Hill Craft</h2>
+          <p>
+            An intimate 3-storey alpine sanctuary inspired by indigenous Kumaoni homesteads and European mountain chalets. Designed with 4 pitched gables, private curved verandas, an elevated tea terrace, and a safe ground-level arrival portico.
+          </p>
+        </div>
+
+        <div class="arch-showcase-grid">
+          <!-- Main Interactive Render Display -->
+          <div class="arch-display-card">
+            <span class="arch-render-badge" id="archRenderBadge">Front Elevation • 3 Storeys & 4 Gabled Dormers</span>
+            <img 
+              src="assets/architecture-elevation-front.jpg" 
+              alt="The Hill Serenity Architectural Front Elevation 3D Model" 
+              class="arch-main-render" 
+              id="archMainRender"
+            >
+            <div class="arch-angle-switcher">
+              <button class="arch-tab-btn active" onclick="switchArchRender('front', this)">Front Elevation</button>
+              <button class="arch-tab-btn" onclick="switchArchRender('isometric', this)">3D Isometric View</button>
+              <button class="arch-tab-btn" onclick="openLightbox(0)">⛶ Fullscreen</button>
+            </div>
+          </div>
+
+          <!-- Architectural Feature Pillars -->
+          <div class="arch-features-list">
+            <div class="arch-feat-item">
+              <div class="arch-feat-icon">🏔️</div>
+              <div class="arch-feat-text">
+                <h4>Alpine Gabled Dormers (4 Pitched Roofs)</h4>
+                <p>Traditional multi-gabled slate rooflines engineered to naturally channel heavy monsoon showers and resist mountain winter winds while creating airy high-ceilinged attic suites.</p>
+              </div>
+            </div>
+
+            <div class="arch-feat-item">
+              <div class="arch-feat-icon">☕</div>
+              <div class="arch-feat-text">
+                <h4>The Valley Sun Terrace & Cafe Deck</h4>
+                <p>Sprawling second-level open-air veranda equipped with sun umbrellas, bespoke cane furniture, and 270-degree unbroken panoramas of the South Gola Range for breakfast and night stargazing.</p>
+              </div>
+            </div>
+
+            <div class="arch-feat-item">
+              <div class="arch-feat-icon">🌿</div>
+              <div class="arch-feat-text">
+                <h4>Curved Veranda Suites & Floor-to-Ceiling Glass</h4>
+                <p>Semicircular private balconies on floors 1 and 2, paired with sliding double-glazed acoustic glass to invite the pine scent and mountain mist straight into each bedroom.</p>
+              </div>
+            </div>
+
+            <div class="arch-feat-item">
+              <div class="arch-feat-icon">🚗</div>
+              <div class="arch-feat-text">
+                <h4>Covered Arrival Portico & Drive-In Bay</h4>
+                <p>Sheltered ground-level reception porch providing seamless vehicular drop-off and protected parking directly off the Chafi approach road, ensuring effortless all-weather check-in.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dual Angle Gallery Strip -->
+        <div class="arch-gallery-strip">
+          <div class="arch-thumb-card" onclick="switchArchRender('front'); openLightbox(0);">
+            <img src="assets/architecture-elevation-front.jpg" alt="Front Elevation Architecture">
+            <div class="arch-thumb-caption">View 1: Front Elevation & Ground Entrance Porch ↗</div>
+          </div>
+          <div class="arch-thumb-card" onclick="switchArchRender('isometric'); openLightbox(1);">
+            <img src="assets/architecture-isometric-3d.jpg" alt="3D Isometric Aerial Angle">
+            <div class="arch-thumb-caption">View 2: Isometric 3D View with Arched Stone Cladding ↗</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==========================================================================
          SECTION 3: ROOMS & SUITES
          ========================================================================== -->
-    <section class="rooms-section section-padding" id="rooms">
+    <section class="rooms-section section-padding section-translucent-bg" id="rooms">
       <div class="container">
         <div class="section-header">
           <span class="eyebrow">Intimate Living Spaces</span>
@@ -748,7 +860,7 @@
     <!-- ==========================================================================
          SECTION 5: EXPERIENCES
          ========================================================================== -->
-    <section class="experiences-section section-padding" id="experiences">
+    <section class="experiences-section section-padding section-translucent-bg" id="experiences">
       <div class="container">
         <div class="section-header">
           <span class="eyebrow">Mindful Mountain Immersion</span>
@@ -993,7 +1105,7 @@
     <!-- ==========================================================================
          SECTION 7: CURATED GALLERY
          ========================================================================== -->
-    <section class="gallery-section section-padding" id="gallery">
+    <section class="gallery-section section-padding section-translucent-bg" id="gallery">
       <div class="container">
         <div class="section-header">
           <span class="eyebrow">Visual Preview</span>
@@ -1005,7 +1117,7 @@
         </div>
 
         <div class="gallery-filters">
-          <button class="gallery-filter-btn active" onclick="filterGallery('all', this)">All Views</button>
+          <button class="gallery-filter-btn active" onclick="filterGallery('all', this)">All Views</button>\n          <button class="gallery-filter-btn" onclick="filterGallery('architecture', this)">3D Architecture Renders</button>
           <button class="gallery-filter-btn" onclick="filterGallery('rooms', this)">Suites & Interiors</button>
           <button class="gallery-filter-btn" onclick="filterGallery('property', this)">Architecture & Grounds</button>
           <button class="gallery-filter-btn" onclick="filterGallery('dining', this)">Cuisine & Farm</button>
@@ -1013,6 +1125,27 @@
         </div>
 
         <div class="gallery-masonry" id="galleryMasonry">
+          <!-- Item A1: Architecture Front Elevation -->
+          <div class="gallery-item" data-group="architecture" onclick="openLightbox(0)">
+            <img src="assets/architecture-elevation-front.jpg" alt="Architectural Front Elevation 3D Model">
+            <div class="gallery-overlay">
+              <div class="gallery-caption">
+                <h4>Architectural Front Elevation</h4>
+                <span>3-Storey Alpine Dormers & Portico</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Item A2: Architecture 3D Isometric View -->
+          <div class="gallery-item" data-group="architecture" onclick="openLightbox(1)">
+            <img src="assets/architecture-isometric-3d.jpg" alt="Architectural 3D Isometric View">
+            <div class="gallery-overlay">
+              <div class="gallery-caption">
+                <h4>3D Isometric Aerial Perspective</h4>
+                <span>Arched Stone Feature Wall & Terrace</span>
+              </div>
+            </div>
+          </div>
           <!-- Item 1: Property -->
           <div class="gallery-item" data-group="property" onclick="openLightbox(0)">
             <img src="https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&q=80"
@@ -1164,7 +1297,7 @@
     <!-- ==========================================================================
          SECTION 9: AROUND US & TRAVEL DISTANCE MATRIX
          ========================================================================== -->
-    <section class="location-section section-padding" id="location">
+    <section class="location-section section-padding section-translucent-bg" id="location">
       <div class="container">
         <div class="section-header">
           <span class="eyebrow">Strategic Himalayan Setting</span>
@@ -1355,7 +1488,7 @@
             <div class="map-visual-placeholder">
               <!-- Clean Google Maps Embed Centered on Chafi, Nainital -->
               <iframe
-                src="https://maps.google.com/maps?q=Chafi%2C%20Nainital%2C%20Uttarakhand&t=&z=13&ie=UTF8&iwloc=&output=embed"
+                src="https://maps.google.com/maps?q=29.3735269,79.5804307&t=&z=14&ie=UTF8&iwloc=&output=embed"
                 loading="lazy" title="The Hill Serenity Chafi Location Map">
               </iframe>
             </div>
@@ -1367,7 +1500,7 @@
               </div>
 
               <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
-                <a href="https://maps.google.com/?q=Chafi+Nainital+Uttarakhand" target="_blank"
+                <a href="https://maps.app.goo.gl/3wiknEp5PKnJ9Vbb9" target="_blank"
                   rel="noopener noreferrer" class="btn btn-primary btn-sm">
                   Open in Google Maps ↗
                 </a>
@@ -1500,7 +1633,7 @@
     <!-- ==========================================================================
          SECTION 12: CONTACT & RESERVATION ENQUIRY
          ========================================================================== -->
-    <section class="contact-section section-padding" id="contact">
+    <section class="contact-section section-padding section-translucent-bg" id="contact">
       <div class="container">
         <div class="contact-layout">
           <!-- Left: Direct Channels & Hospitality Concierge -->
@@ -1813,7 +1946,7 @@
             <li><a href="#offers">Inaugural Packages</a></li>
             <li><a href="#faqs">Policies & FAQs</a></li>
             <li><a href="#waitlist">Founding 100 Waitlist</a></li>
-            <li><a href="https://maps.google.com/?q=Chafi+Nainital+Uttarakhand" target="_blank"
+            <li><a href="https://maps.app.goo.gl/3wiknEp5PKnJ9Vbb9" target="_blank"
                 rel="noopener noreferrer">Google Maps Route</a></li>
           </ul>
         </div>

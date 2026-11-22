@@ -201,3 +201,26 @@ You can take this website live in under 3 minutes without writing any backend se
 
 © The Hill Serenity, Chafi, Kumaon. All rights reserved.
 
+
+---
+
+## 🎥 Ambient Background Video & 3D Architecture (New Update)
+
+### 1. Continuous Background Greenery Video
+Inspired by the world’s top architectural websites (as referenced in the `$3,390` luxury tower agency demo), the website features a continuous, hardware-accelerated 1080p background video loop (`assets/mountain-greenery-loop.mp4`) showing the lush Kumaoni pine forest and drifting mountain mist.
+- **Scroll Parallax**: As the visitor scrolls down, the background video subtly scales and shifts to produce an immersive 3D depth effect beneath the translucent glassmorphism content cards.
+- **Floating Controls**: Visitors have full control via the floating bottom-right pill:
+  - **Greenery Motion (Play / Pause)**
+  - **Himalayan Mountain Audio (Mute / Play)**: An integrated Web Audio API synthesizer that plays a soothing, organic mountain breeze and pine tree rustle without relying on external audio files.
+  - **Visual Intensity Switcher**: Toggle between **Cinema** (balanced opacity), **Vibrant Green** (high contrast), and **Soft Mist** (minimalist aesthetic).
+
+### 2. 3D Architectural Blueprint Section
+The website now features the official 3D architectural blueprints:
+- **`assets/architecture-elevation-front.jpg`**: Front elevation showing the 3 storeys, 4 alpine peaked dormer roofs, ground drive-in reception portico, and curved private suite verandas.
+- **`assets/architecture-isometric-3d.jpg`**: 3D Isometric view showing the arched Kumaoni river-stone feature wall, open-air second-floor tea terrace with sun umbrellas, and road approach.
+- Both renders are integrated with interactive angle switchers and full-screen lightbox exploration in the **Gallery**.
+
+### 3. Verified Location & Map Coordinates
+- **Exact Location Link**: [Google Maps Pin](https://maps.app.goo.gl/3wiknEp5PKnJ9Vbb9)
+- **Coordinates**: `29.3735° N, 79.5804° E` (South Gola Range, Chafi Valley, Nainital District, Uttarakhand).
+- Integrated with direct Google Maps directions and Schema.org GeoCoordinates.

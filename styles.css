@@ -2477,3 +2477,288 @@ textarea.form-control {
   }
 }
 
+
+/* ==========================================================================
+   AMBIENT BACKGROUND VIDEO (SCROLL IMMERSION)
+   Inspired by ultra-luxury boutique hospitality sites
+   ========================================================================== */
+.site-ambient-video-wrapper {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -2;
+  overflow: hidden;
+  pointer-events: none;
+  background-color: var(--color-pine-dark);
+}
+
+.ambient-bg-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
+  opacity: 0.35;
+  transition: opacity var(--transition-smooth), transform 0.1s linear;
+  filter: contrast(1.08) brightness(0.9);
+}
+
+body.video-opacity-high .ambient-bg-video {
+  opacity: 0.55;
+}
+
+body.video-opacity-soft .ambient-bg-video {
+  opacity: 0.22;
+}
+
+.ambient-video-overlay {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(18, 33, 25, 0.4) 0%, rgba(18, 33, 25, 0.85) 100%);
+  z-index: 1;
+}
+
+/* Glassmorphism Section Transitions */
+.section-translucent-bg {
+  background-color: rgba(253, 252, 249, 0.92);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  position: relative;
+  z-index: 2;
+  border-top: 1px solid rgba(255, 255, 255, 0.4);
+  border-bottom: 1px solid rgba(26, 48, 38, 0.08);
+}
+
+.section-translucent-dark {
+  background-color: rgba(18, 33, 25, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  position: relative;
+  z-index: 2;
+  border-top: 1px solid rgba(194, 160, 102, 0.25);
+  border-bottom: 1px solid rgba(194, 160, 102, 0.25);
+}
+
+/* Floating Ambient Controller Pill */
+.ambient-controls-pill {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 999;
+  background-color: rgba(18, 33, 25, 0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--color-border-gold);
+  border-radius: var(--radius-full);
+  padding: 0.4rem 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  box-shadow: var(--shadow-elevated);
+  transition: all var(--transition-fast);
+}
+
+.ambient-controls-pill:hover {
+  background-color: rgba(18, 33, 25, 0.96);
+  border-color: var(--color-gold);
+  transform: translateY(-2px);
+}
+
+.ctrl-btn {
+  background: transparent;
+  border: none;
+  color: var(--color-gold-light);
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.45rem;
+  border-radius: var(--radius-full);
+  transition: all var(--transition-fast);
+}
+
+.ctrl-btn:hover {
+  color: #fff;
+  background-color: rgba(194, 160, 102, 0.2);
+}
+
+.ctrl-divider {
+  width: 1px;
+  height: 14px;
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* ==========================================================================
+   ARCHITECTURAL BLUEPRINT & 3D RENDERS SECTION
+   ========================================================================== */
+.architecture-section {
+  position: relative;
+  z-index: 2;
+  background-color: rgba(247, 244, 238, 0.94);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.arch-showcase-grid {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 3.5rem;
+  align-items: center;
+  margin-bottom: 3.5rem;
+}
+
+.arch-display-card {
+  position: relative;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background-color: #000;
+  box-shadow: var(--shadow-elevated);
+  border: 1px solid var(--color-border-gold);
+}
+
+.arch-main-render {
+  width: 100%;
+  height: 480px;
+  object-fit: cover;
+  display: block;
+  transition: transform var(--transition-smooth);
+}
+
+.arch-display-card:hover .arch-main-render {
+  transform: scale(1.03);
+}
+
+.arch-render-badge {
+  position: absolute;
+  top: 1.25rem;
+  left: 1.25rem;
+  background-color: rgba(18, 33, 25, 0.88);
+  backdrop-filter: blur(8px);
+  color: var(--color-gold-light);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  padding: 0.4rem 0.85rem;
+  border-radius: var(--radius-xs);
+  border: 1px solid rgba(194, 160, 102, 0.4);
+}
+
+.arch-angle-switcher {
+  position: absolute;
+  bottom: 1.25rem;
+  right: 1.25rem;
+  display: flex;
+  gap: 0.5rem;
+  z-index: 5;
+}
+
+.arch-tab-btn {
+  background-color: rgba(18, 33, 25, 0.85);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 0.4rem 0.8rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  border-radius: var(--radius-xs);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.arch-tab-btn.active,
+.arch-tab-btn:hover {
+  background-color: var(--color-gold);
+  color: var(--color-pine-dark);
+  border-color: var(--color-gold);
+}
+
+.arch-features-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.arch-feat-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  background-color: var(--color-ivory);
+  padding: 1.25rem;
+  border-radius: var(--radius-xs);
+  border: 1px solid var(--color-border);
+  transition: all var(--transition-fast);
+}
+
+.arch-feat-item:hover {
+  border-color: var(--color-gold);
+  transform: translateX(4px);
+  box-shadow: var(--shadow-subtle);
+}
+
+.arch-feat-icon {
+  width: 38px;
+  height: 38px;
+  background-color: var(--color-sand);
+  border-radius: var(--radius-xs);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-pine-deep);
+  font-size: 1.2rem;
+  flex-shrink: 0;
+  border: 1px solid var(--color-border-gold);
+}
+
+.arch-feat-text h4 {
+  font-size: 1.1rem;
+  margin-bottom: 0.25rem;
+  color: var(--color-pine-dark);
+}
+
+.arch-feat-text p {
+  font-size: 0.84rem;
+  color: var(--color-slate);
+  line-height: 1.55;
+  margin-bottom: 0;
+}
+
+.arch-gallery-strip {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.arch-thumb-card {
+  position: relative;
+  height: 260px;
+  border-radius: var(--radius-xs);
+  overflow: hidden;
+  cursor: pointer;
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-subtle);
+}
+
+.arch-thumb-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--transition-smooth);
+}
+
+.arch-thumb-card:hover img {
+  transform: scale(1.05);
+}
+
+.arch-thumb-caption {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 1rem;
+  background: linear-gradient(180deg, transparent 0%, rgba(18, 33, 25, 0.9) 100%);
+  color: #fff;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
