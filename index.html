@@ -1,120 +1,59 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>The Hill Serenity | Luxury Architecture & Boutique Sanctuary • Chafi, Nainital</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Hill Serenity | Luxury Boutique Sanctuary — Chafi, Nainital</title>
+  <meta name="description" content="The Hill Serenity is a luxury boutique sanctuary in Chafi, South Gola Range, Nainital — 12 km from Kainchi Dham. Cream stucco, crimson alpine roofs, bespoke suites and timeless Kumaoni hospitality." />
 
-  <!-- SEO Meta Tags -->
-  <meta name="description" content="The Hill Serenity is an award-winning luxury architecture studio and boutique sanctuary in Chafi, South Gola Range, Nainital. Featuring 3 storeys, 4 alpine gables in crimson red roof and cream stone walls, 12 km from Kainchi Dham.">
-  <meta name="keywords" content="luxury architecture website, boutique hotel Chafi Nainital, Kainchi Dham homestay, luxury mountain construction, cream walls red roof villa, GSAP 3D architectural website, Uttarakhand architecture firm">
-  <meta name="author" content="The Hill Serenity">
-  <meta name="robots" content="index, follow">
+  <!-- Fonts: Taj-exact stack — Libre Baskerville (serif headings) + Inter (clean body) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Cormorant:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
 
-  <!-- Geo Tags for Local SEO -->
-  <meta name="geo.region" content="IN-UT">
-  <meta name="geo.placename" content="South Gola Range, Chafi, Nainital, Uttarakhand">
-  <meta name="geo.position" content="29.3735;79.5804">
-  <meta name="ICBM" content="29.3735, 79.5804">
-
-  <!-- Open Graph / Facebook -->
-  <meta property="og:type" content="website">
-  <meta property="og:title" content="The Hill Serenity | Cinematic 3D Architecture & Sanctuary">
-  <meta property="og:description" content="Where stone breathes and cedar sings. A bespoke 3-storey alpine sanctuary in cream stucco and crimson red roof gables in the Kumaon hills.">
-  <meta property="og:url" content="https://thehillserenity.com">
-  <meta property="og:image" content="assets/property-cream-redroof-masterpiece.jpg">
-
-  <!-- Twitter Card -->
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="The Hill Serenity | Luxury Himalayan Architecture">
-  <meta name="twitter:description" content="Interactive 3D architectural sanctuary in Chafi, Nainital. Cream stucco, alpine red roofs, and sacred proximity to Kainchi Dham.">
-  <meta name="twitter:image" content="assets/property-cream-redroof-masterpiece.jpg">
-
-  <!-- Google Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
-  <!-- Tailwind CSS CDN with Custom Architecture Theme Config -->
+  <!-- Tailwind -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
       theme: {
         extend: {
           colors: {
-            obsidian: '#090E0C',
-            'pine-dark': '#0F1A15',
-            'pine-deep': '#16261F',
-            'pine-muted': '#243B30',
-            cream: '#F5EFE3',
-            'cream-light': '#FDFBF7',
-            gold: '#C5A880',
-            'gold-light': '#DFC8A5',
-            'gold-dark': '#9C7E53',
-            'roof-red': '#A83232',
-            border: 'rgba(197, 168, 128, 0.22)'
+            'ths-white':   '#FFFFFF',
+            'ths-offwhite':'#FAF8F5',
+            'ths-cream':   '#F3EDE3',
+            'ths-navy':    '#1C2B3A',
+            'ths-navy2':   '#243344',
+            'ths-dark':    '#111820',
+            'ths-gold':    '#B5922C',
+            'ths-gold2':   '#C9A84C',
+            'ths-gold3':   '#8A6C1A',
+            'ths-muted':   '#7A7268',
+            'ths-border':  '#E2DDD6',
           },
           fontFamily: {
-            serif: ['Cormorant Garamond', 'Georgia', 'serif'],
-            sans: ['Plus Jakarta Sans', 'sans-serif']
+            serif:   ['"Libre Baskerville"', 'Georgia', 'serif'],
+            display: ['"Cormorant"', 'Georgia', 'serif'],
+            sans:    ['Inter', 'system-ui', 'sans-serif'],
           }
         }
       }
     }
   </script>
 
-  <!-- Custom Stylesheet -->
-  <link rel="stylesheet" href="styles.css">
+  <!-- Styles -->
+  <link rel="stylesheet" href="styles.css" />
 
-  <!-- Core Libraries: React 18, ReactDOM 18, Babel Standalone -->
+  <!-- Libraries -->
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-
-  <!-- Animation & 3D Engines: GSAP 3.12, ScrollTrigger, Lenis Smooth Scroll, Three.js -->
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
   <script src="https://unpkg.com/lenis@1.1.9/dist/lenis.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-
-  <!-- Schema.org JSON-LD Structured Data -->
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@graph": [
-      {
-        "@type": "LodgingBusiness",
-        "@id": "https://thehillserenity.com/#sanctuary",
-        "name": "The Hill Serenity",
-        "alternateName": "The Hill Serenity Architecture & Boutique Sanctuary",
-        "description": "An award-winning luxury boutique sanctuary and architectural estate in Chafi, South Gola Range, Nainital. Featuring 3 storeys, 4 alpine gables with crimson red roofs and cream limestone walls.",
-        "url": "https://thehillserenity.com",
-        "telephone": "+91-9876543210",
-        "email": "namaste@thehillserenity.com",
-        "address": {
-          "@type": "PostalAddress",
-          "streetAddress": "South Gola Range, Village Chafi, Near Kalsa River Bridge",
-          "addressLocality": "Chafi, Bhowali Tehsil",
-          "addressRegion": "Uttarakhand",
-          "postalCode": "263136",
-          "addressCountry": "IN"
-        },
-        "geo": {
-          "@type": "GeoCoordinates",
-          "latitude": "29.3735",
-          "longitude": "79.5804"
-        },
-        "numberOfRooms": 10
-      }
-    ]
-  }
-  </script>
 </head>
-<body class="bg-obsidian text-cream selection:bg-gold selection:text-obsidian">
-  <!-- React App Root Container -->
+<body>
   <div id="root"></div>
-
-  <!-- React JSX Application Script -->
   <script type="text/babel" src="app.js"></script>
 </body>
 </html>

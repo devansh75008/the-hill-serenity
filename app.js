@@ -1,1037 +1,847 @@
 /**
- * THE HILL SERENITY - LUXURY ARCHITECTURE & BOUTIQUE SANCTUARY
- * React 18 Application with GSAP ScrollTrigger, Lenis Smooth Scroll, Three.js 3D Model,
- * and Dynamic Seasonal Background Templates (Kling AI Video, Mist, Spring, Monsoon, Autumn, Winter).
+ * THE HILL SERENITY
+ * Full Taj Hotels-style UI: Announcement → Utility Bar → Nav (Center Logo) →
+ * Hero → Booking Strip → Destinations → Offers → Membership →
+ * Our Story → Seasons → The Process → 3D Model → Reserve (Modal) → Footer
  */
 
-const { useState, useEffect, useRef } = React;
+const { useState, useEffect, useRef, useCallback } = React;
 
-// ==========================================================================
-// 1. DATA COLLECTIONS & SEASONAL BACKGROUND TEMPLATES
-// ==========================================================================
+// ─── DATA ───────────────────────────────────────────────────────────────────
 
-const BACKGROUND_TEMPLATES = {
-  video: {
-    id: "video",
-    name: "Kling AI Video",
-    icon: "📹",
-    type: "video",
-    src: "assets/kling-ai-property-cream-redroof.mp4",
-    poster: "assets/hero-the-hill-serenity-1080p.jpg",
-    desc: "1080p Continuous Looping Motion with Drifting Mountain Mist"
-  },
-  mist: {
-    id: "mist",
-    name: "Atmospheric Mist",
-    icon: "☁️",
-    type: "image",
-    src: "assets/hero-the-hill-serenity-1080p.jpg",
-    desc: "Signature Twilight View with Glowing Windows & Forest Slopes"
-  },
-  spring: {
-    id: "spring",
-    name: "Spring",
-    icon: "🌸",
-    type: "image",
-    src: "assets/bg-season-spring.jpg",
-    temp: "16°C – 26°C",
-    desc: "Verdant Pine Canopies, Apple & Plum Blossoms, Pleasant Mountain Skies"
-  },
-  monsoon: {
-    id: "monsoon",
-    name: "Monsoon",
-    icon: "🌧️",
-    type: "image",
-    src: "assets/bg-season-monsoon.jpg",
-    temp: "18°C – 24°C",
-    desc: "Rushing Kalsa River, Atmospheric Valley Clouds & Deep Emerald Greenery"
-  },
-  autumn: {
-    id: "autumn",
-    name: "Autumn",
-    icon: "🍂",
-    type: "image",
-    src: "assets/bg-season-autumn.jpg",
-    temp: "12°C – 22°C",
-    desc: "Himalayan Golden Hour Sunset, Amber Ridge Foliage & Crystal Peak Vistas"
-  },
-  winter: {
-    id: "winter",
-    name: "Winter",
-    icon: "❄️",
-    type: "image",
-    src: "assets/bg-season-winter.jpg",
-    temp: "2°C – 15°C",
-    desc: "Snowfall on Crimson Red Alpine Gables, Frosty Pines & Fireside Retreat"
-  },
-  collage: {
-    id: "collage",
-    name: "4-Season Collage",
-    icon: "⛶",
-    type: "image",
-    src: "assets/seasons-collage-4k.jpg",
-    desc: "Quad-Perspective Matrix of All 4 Kumaon Seasons"
-  }
-};
 
-const PROCESS_STAGES = [
+
+const HOMESTAY_PILLARS = [
   {
-    id: 1,
-    tag: "Stage 01",
-    title: "Excavation & River Stone Foundation",
-    description: "Deep hillside excavation into the South Gola Range granite bedrock. Reinforced concrete footings anchored with native Chafi river stone retaining walls to ensure century-long seismic stability and natural hill drainage.",
-    specs: ["Excavation Depth: 4.2m into bedrock", "Reinforced M30 Hill Grade Concrete", "Traditional Dry-Stack Retaining Walls", "Integrated Rainwater Sub-Drainage"],
-    image: "assets/process-stage1-foundation.jpg"
+    id: "rooms",
+    tag: "Bespoke Accommodations",
+    name: "The Rooms & Suites",
+    location: "Cedar Timber Millwork · Curved Verandas · Heated Floors",
+    specs: "Acoustic Double-Glazing · Private Sunrise Veranda · Handcrafted Cedar Accents · Heated Floors · Luxury En-Suite",
+    img: "assets/suite-balconies-mist.jpg",
+    desc: "Designed for intimate luxury and quiet restorative rest. Every suite features floor-to-ceiling double-glazed sliding glass doors opening to private cantilevered curved balconies with 270° views across the pine-clad valley.",
+    actionText: "Explore Suites & Balconies →"
   },
   {
-    id: 2,
-    tag: "Stage 02",
-    title: "Structural Timber & 4 Alpine Gables",
-    description: "Erection of the structural skeleton featuring 4 distinct peaked alpine dormer trusses. Heavy-timber deodar joints and shear wall engineering provide natural resistance to Kumaon mountain gusts and heavy monsoon downpours.",
-    specs: ["4 Pitch-Steep Alpine Dormers", "Sustainably Sourced Mountain Deodar", "Earthquake-Resilient Steel Tie Brackets", "Multi-Tier Balcony Cantilevers"],
-    image: "assets/process-stage2-construction.jpg"
+    id: "nature",
+    tag: "Pristine Ecology · 5,400 ft",
+    name: "The Nature & Wilderness",
+    location: "Chafi Valley · Whispering Pines · Kalsa Riverbanks",
+    specs: "Direct Doorstep River Trails · Forest Bathing Sanctuary · Zero Light & Air Pollution · 100+ Bird Species · Stargazing Haven",
+    img: "assets/nearby-chafi-kalsa-river.jpg",
+    desc: "Cradled by virgin pine and oak canopies at 5,400 feet elevation, where crisp mountain air rejuvenates body and mind. Step directly onto tranquil river trails along the crystal-clear Kalsa stream right from our doorstep.",
+    actionText: "Discover River & Trails →"
   },
   {
-    id: 3,
-    tag: "Stage 03",
-    title: "Cedar Interiors & Panoramic Glazing",
-    description: "Handcrafted interior millwork using fragrant Himalayan cedar. Installation of acoustic double-glazed argon-filled sliding glass doors on all curved verandas, capturing 270-degree valley views with zero thermal loss.",
-    specs: ["Argon-Filled Double Glazing", "Hand-Chiselled Chafi Stone Feature Walls", "Underfloor Hydronic Heating Pipes", "Custom Brass Fixtures & Hardware"],
-    image: "assets/process-stage3-interiors.jpg"
+    id: "homestay",
+    tag: "Soulful Kumaoni Hospitality",
+    name: "The Homestay Experience",
+    location: "Chafi, Nainital · 12 km from Kainchi Dham",
+    specs: "Organic Farm-to-Table Kumaoni Kitchen · 2nd-Floor Sunlit Cafe Terrace · Starlit Cedar Bonfires · Pilgrimage Shuttle Concierge",
+    img: "assets/the-hill-serenity-facade.jpg",
+    desc: "A boutique sanctuary celebrating the warmth of genuine mountain homestay living. Indulge in wholesome farm-to-table Pahadi delicacies, unwind on our open-air valley sun terrace, and enjoy profound quietude minutes from Kainchi Dham.",
+    actionText: "Experience The Homestay →"
+  },
+];
+
+const NEARBY_ATTRACTIONS = [
+  {
+    name: "Kainchi Dham (Neem Karoli Baba Ashram)",
+    category: "Sacred Spiritual Pilgrimage",
+    distance: "12 km",
+    time: "25 mins",
+    img: "assets/nearby-kainchi-dham.jpg",
+    desc: "The world-revered ashram of Maharaj-ji in the lush river valley. Experience sacred evening aarti, quiet meditation by the Shipra river, and tranquil spiritual blessings.",
+    highlight: "Daily Hotel Shuttle"
   },
   {
-    id: 4,
-    tag: "Stage 04",
-    title: "The Completed Sanctuary (Cream & Red Roof)",
-    description: "The completed 3-storey architectural sanctuary: textured cream limestone stucco walls, rich alpine crimson terracotta roof tiles, second-floor open-air tea terrace, and warm golden glowing windows overlooking the river valley.",
-    specs: ["Crimson Red Shingle Roofline", "Warm Limestone Cream Stucco", "Second-Level Valley Sun Terrace", "Drive-In Reception Portico Bay"],
-    image: "assets/process-stage4-completed.jpg"
+    name: "Bhimtal Lake & Island Aquarium",
+    category: "Emerald Lake & Boating",
+    distance: "8 km",
+    time: "15 mins",
+    img: "assets/nearby-bhimtal-lake.jpg",
+    desc: "The largest lake in the Kumaon region with an iconic island cafe in its center. Enjoy peaceful boat rides, kayaking, lakeside dining, and walks along the Victorian dam.",
+    highlight: "Island Cafe & Kayaking"
+  },
+  {
+    name: "Sattal (Seven Interconnected Lakes)",
+    category: "Pristine Nature & Birding",
+    distance: "10 km",
+    time: "20 mins",
+    img: "assets/nearby-sattal-lake.jpg",
+    desc: "A cluster of seven crystal freshwater lakes surrounded by old-growth oak and pine forests. One of India's premier birdwatching havens with untouched nature trails.",
+    highlight: "Oak Forest Nature Trails"
+  },
+  {
+    name: "Ghorakhal Golu Devta Mandir",
+    category: "Sacred Bell Temple",
+    distance: "11 km",
+    time: "20 mins",
+    img: "assets/nearby-ghorakhal-temple.jpg",
+    desc: "The famed Temple of Justice adorned with thousands of ringing brass bells hung by grateful devotees. Perched high on a ridge overlooking the scenic Bhowali tea gardens.",
+    highlight: "Tea Gardens & Bell Vows"
+  },
+  {
+    name: "Nainital (Naini Lake & Mall Road)",
+    category: "Colonial Lake Station",
+    distance: "18 km",
+    time: "35 mins",
+    img: "assets/nearby-nainital-lake.jpg",
+    desc: "The iconic mountain lake city surrounded by seven emerald peaks. Visit the historic Naina Devi Temple, take the Snow View cable car, and stroll the Mall Road.",
+    highlight: "Ropeway & Lake Stroll"
+  },
+  {
+    name: "Naukuchiatal (Nine-Cornered Lake)",
+    category: "Lotus Waters & Adventure",
+    distance: "12 km",
+    time: "20 mins",
+    img: "assets/nearby-naukuchiatal-lake.jpg",
+    desc: "The deepest and most tranquil lake in Uttarakhand with nine scenic corners. Renowned for tandem paragliding over valley ridges and lotus-dappled waters.",
+    highlight: "Tandem Paragliding"
+  },
+  {
+    name: "Mukteshwar Ridge & Chauli Ki Jali",
+    category: "Himalayan Peak Vistas",
+    distance: "28 km",
+    time: "55 mins",
+    img: "assets/nearby-mukteshwar-ridge.jpg",
+    desc: "Perched at 7,500 ft with 180° views of Trishul and Nanda Devi snow peaks. Explore the ancient Shiva temple and sunset cliffs at Chauli Ki Jali.",
+    highlight: "Nanda Devi Snow Peaks"
+  },
+  {
+    name: "Chafi Kalsa River Trail & Cascades",
+    category: "Walking Distance from Hotel",
+    distance: "1.2 km",
+    time: "10 mins",
+    img: "assets/nearby-chafi-kalsa-river.jpg",
+    desc: "Stroll directly from The Hill Serenity to the crystal clear Kalsa riverbanks. Enjoy natural swimming pools, organic fruit orchards, and riverside solitude.",
+    highlight: "Hotel Step-Out River Trail"
   }
 ];
 
-const PROJECTS = [
-  {
-    id: "serenity",
-    title: "The Hill Serenity Sanctuary",
-    category: "Boutique Homestay",
-    location: "Chafi, South Gola Range, Nainital",
-    specs: "3 Storeys • 4 Gables • 10 Bespoke Suites",
-    image: "assets/hero-the-hill-serenity-1080p.jpg",
-    description: "Our signature mountain retreat designed for spiritual seekers and nature immersion. Built with cream stucco, red alpine roofs, and private curved verandas 12 km from Kainchi Dham."
-  },
-  {
-    id: "mukteshwar",
-    title: "The Mukteshwar Ridge Chalet",
-    category: "Private Residence",
-    location: "Mukteshwar, Uttarakhand (7,500 ft)",
-    specs: "4 Bedrooms • Stone Hearth • Nanda Devi View",
-    image: "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1200&q=80",
-    description: "A cliffside luxury residence oriented toward the snow peaks of Nanda Devi and Trishul, combining slate gables with floor-to-ceiling glass pavilions."
-  },
-  {
-    id: "sattal",
-    title: "Sattal Lakeview Glass Villa",
-    category: "Lakefront Villa",
-    location: "Sattal Forest Reserve, Uttarakhand",
-    specs: "Cantilevered Glass • 5 En-Suites • Private Deck",
-    image: "https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=1200&q=80",
-    description: "Suspended amidst old-growth oak and pine forests, this modern villa hovers above the pristine waters of the seven interconnected lakes."
-  },
-  {
-    id: "kumaon-estate",
-    title: "Chafi Valley River Homestead",
-    category: "Heritage Homestead",
-    location: "Kalsa Riverbanks, Nainital",
-    specs: "Handcrafted River Stone • Organic Orchard",
-    image: "https://images.unsplash.com/photo-1518780664697-55e3ad937233?auto=format&fit=crop&w=1200&q=80",
-    description: "A masterclass in vernacular stone masonry, restoring indigenous Kumaoni homestead traditions with state-of-the-art geothermal climate control."
-  }
+const BENEFITS = [
+  { icon: "✦", title: "Priority Reservations", desc: "Exclusive first access to new rooms, seasonal packages and founding-patron pricing before public release." },
+  { icon: "◈", title: "Complimentary Upgrades", desc: "Subject to availability, members are upgraded to our finest valley-view suites at no extra charge." },
+  { icon: "◇", title: "Dedicated Concierge", desc: "A personal sanctuary concierge for temple visits, forest hikes, local artisan tours and private dining curation." },
+  { icon: "◉", title: "Artisan Welcome Amenity", desc: "Handcrafted Kumaoni welcome hamper — local honey, pine resin incense, hand-woven shawl and village-grown herbs." },
 ];
 
-// ==========================================================================
-// 2. THREE.JS 3D ARCHITECTURAL MODEL COMPONENT
-// ==========================================================================
-function Interactive3DViewer() {
-  const mountRef = useRef(null);
 
+// ─── MAIN APP ─────────────────────────────────────────────────────────────────
+
+function App() {
+  const [reserveOpen, setReserve] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [memberOpen, setMemberOpen] = useState(false);
+  const [selDest, setSelDest] = useState(null);
+  const [audio, setAudio] = useState(false);
+  const audioRefs = useRef({});
+
+  // ── Booking Strip State ───────────────────────────────────────
+  const getTodayISO = () => new Date().toISOString().split("T")[0];
+  const getTomorrowISO = () => {
+    const d = new Date();
+    d.setDate(d.getDate() + 1);
+    return d.toISOString().split("T")[0];
+  };
+
+  const formatDateDisplay = (isoStr) => {
+    if (!isoStr) return "Select Date";
+    try {
+      const [y, m, d] = isoStr.split("-").map(Number);
+      const dateObj = new Date(y, m - 1, d);
+      const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+      const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+      return `${days[dateObj.getDay()]}, ${d} ${months[dateObj.getMonth()]} ${y}`;
+    } catch (e) {
+      return isoStr;
+    }
+  };
+
+  const calculateNights = (inStr, outStr) => {
+    if (!inStr || !outStr) return 1;
+    const diff = new Date(outStr) - new Date(inStr);
+    return Math.max(1, Math.round(diff / (1000 * 60 * 60 * 24)));
+  };
+
+  const [bookingCheckin, setBookingCheckin] = useState(getTodayISO());
+  const [bookingCheckout, setBookingCheckout] = useState(getTomorrowISO());
+  const [bookingRooms, setBookingRooms] = useState(1);
+  const [bookingAdults, setBookingAdults] = useState(2);
+  const [bookingChildren, setBookingChildren] = useState(0);
+  const [guestPickerOpen, setGuestPickerOpen] = useState(false);
+  const [datePickerOpen, setDatePickerOpen] = useState(false);
+  const [datePickerStep, setDatePickerStep] = useState("checkin"); // "checkin" | "checkout"
+  const [pickerYear, setPickerYear] = useState(() => new Date().getFullYear());
+  const [pickerMonth, setPickerMonth] = useState(() => new Date().getMonth()); // 0-indexed
+  const [bookingDestination, setBookingDestination] = useState("Homestay — The Hill Serenity, Chafi");
+
+  // ── Modal Verification & Guest Selector State ─────────────────
+  const [modalRooms, setModalRooms] = useState(1);
+  const [modalGuests, setModalGuests] = useState(2);
+  const [capacityNotice, setCapacityNotice] = useState("");
+  const [phoneInput, setPhoneInput] = useState("");
+  const [emailInput, setEmailInput] = useState("");
+  const [phoneVerified, setPhoneVerified] = useState(false);
+  const [emailVerified, setEmailVerified] = useState(false);
+  const [verifyingPhone, setVerifyingPhone] = useState(false);
+  const [otpCode, setOtpCode] = useState("");
+  const [simulatedOtp, setSimulatedOtp] = useState("");
+  const [verificationNotice, setVerificationNotice] = useState("");
+
+  // Sync modal rooms/guests when modal opens
   useEffect(() => {
-    const container = mountRef.current;
-    if (!container) return;
-
-    const width = container.clientWidth;
-    const height = container.clientHeight;
-
-    const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x0a120e);
-    scene.fog = new THREE.FogExp2(0x0a120e, 0.035);
-
-    const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
-    camera.position.set(14, 8, 16);
-
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    renderer.setSize(width, height);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-    container.appendChild(renderer.domElement);
-
-    let isDragging = false;
-    let prevMouseX = 0;
-    let prevMouseY = 0;
-    let rotY = 0.5;
-    let rotX = 0.25;
-
-    const onMouseDown = (e) => {
-      isDragging = true;
-      prevMouseX = e.clientX;
-      prevMouseY = e.clientY;
-    };
-    const onMouseMove = (e) => {
-      if (!isDragging) return;
-      const deltaX = e.clientX - prevMouseX;
-      const deltaY = e.clientY - prevMouseY;
-      rotY += deltaX * 0.007;
-      rotX = Math.max(-0.2, Math.min(0.8, rotX + deltaY * 0.005));
-      prevMouseX = e.clientX;
-      prevMouseY = e.clientY;
-    };
-    const onMouseUp = () => { isDragging = false; };
-
-    container.addEventListener("mousedown", onMouseDown);
-    window.addEventListener("mousemove", onMouseMove);
-    window.addEventListener("mouseup", onMouseUp);
-
-    const onTouchStart = (e) => {
-      if (e.touches.length === 1) {
-        isDragging = true;
-        prevMouseX = e.touches[0].clientX;
-        prevMouseY = e.touches[0].clientY;
-      }
-    };
-    const onTouchMove = (e) => {
-      if (!isDragging || e.touches.length !== 1) return;
-      const deltaX = e.touches[0].clientX - prevMouseX;
-      const deltaY = e.touches[0].clientY - prevMouseY;
-      rotY += deltaX * 0.009;
-      rotX = Math.max(-0.2, Math.min(0.8, rotX + deltaY * 0.007));
-      prevMouseX = e.touches[0].clientX;
-      prevMouseY = e.touches[0].clientY;
-    };
-    const onTouchEnd = () => { isDragging = false; };
-
-    container.addEventListener("touchstart", onTouchStart, { passive: true });
-    window.addEventListener("touchmove", onTouchMove, { passive: true });
-    window.addEventListener("touchend", onTouchEnd);
-
-    const ambientLight = new THREE.AmbientLight(0xf5efe3, 0.65);
-    scene.add(ambientLight);
-
-    const sunLight = new THREE.DirectionalLight(0xffb266, 1.4);
-    sunLight.position.set(20, 25, 15);
-    sunLight.castShadow = true;
-    scene.add(sunLight);
-
-    const groundGeo = new THREE.CylinderGeometry(18, 18, 0.4, 32);
-    const groundMat = new THREE.MeshStandardMaterial({ color: 0x182b20, roughness: 0.9 });
-    const ground = new THREE.Mesh(groundGeo, groundMat);
-    ground.position.y = -0.2;
-    ground.receiveShadow = true;
-    scene.add(ground);
-
-    const buildingGroup = new THREE.Group();
-
-    // 1. Cream Stucco Body
-    const creamMat = new THREE.MeshStandardMaterial({
-      color: 0xf5efe3,
-      roughness: 0.7,
-      metalness: 0.05
-    });
-
-    const bodyGeo = new THREE.BoxGeometry(8.5, 4.8, 5.5);
-    const bodyMesh = new THREE.Mesh(bodyGeo, creamMat);
-    bodyMesh.position.y = 2.4;
-    bodyMesh.castShadow = true;
-    bodyMesh.receiveShadow = true;
-    buildingGroup.add(bodyMesh);
-
-    // 2. 4 Crimson Red Alpine Gables
-    const roofRedMat = new THREE.MeshStandardMaterial({
-      color: 0xa83232,
-      roughness: 0.45,
-      metalness: 0.1
-    });
-
-    const gableWidth = 8.5 / 4;
-    for (let i = 0; i < 4; i++) {
-      const gableGeo = new THREE.ConeGeometry(gableWidth * 0.75, 1.8, 4);
-      const gable = new THREE.Mesh(gableGeo, roofRedMat);
-      gable.position.set(-8.5 / 2 + gableWidth * (i + 0.5), 4.8 + 0.9, 0);
-      gable.rotation.y = Math.PI / 4;
-      gable.scale.set(1.1, 1, 1.4);
-      gable.castShadow = true;
-      buildingGroup.add(gable);
+    if (reserveOpen) {
+      const initR = Math.max(1, bookingRooms || 1);
+      const initG = Math.max(1, (bookingAdults || 2) + (bookingChildren || 0));
+      const neededR = Math.max(initR, Math.ceil(initG / 3));
+      setModalRooms(neededR);
+      setModalGuests(initG);
+      setVerificationNotice("");
     }
+  }, [reserveOpen]);
 
-    // 3. Portico & Sun Terrace
-    const porticoMat = new THREE.MeshStandardMaterial({ color: 0x243b30, roughness: 0.6 });
-    const porticoGeo = new THREE.BoxGeometry(4.5, 1.8, 3.2);
-    const portico = new THREE.Mesh(porticoGeo, porticoMat);
-    portico.position.set(-3.2, 0.9, 3.2);
-    portico.castShadow = true;
-    buildingGroup.add(portico);
-
-    const deckMat = new THREE.MeshStandardMaterial({ color: 0xdcd4c4, roughness: 0.5 });
-    const deck = new THREE.Mesh(new THREE.BoxGeometry(4.5, 0.15, 3.2), deckMat);
-    deck.position.set(-3.2, 1.85, 3.2);
-    buildingGroup.add(deck);
-
-    const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 1.2), new THREE.MeshStandardMaterial({ color: 0x333333 }));
-    pole.position.set(-3.2, 2.45, 3.2);
-    buildingGroup.add(pole);
-
-    const canopy = new THREE.Mesh(new THREE.ConeGeometry(0.9, 0.4, 8), new THREE.MeshStandardMaterial({ color: 0xa83232 }));
-    canopy.position.set(-3.2, 3.0, 3.2);
-    buildingGroup.add(canopy);
-
-    // 4. Glowing Windows & Curved Balconies
-    const glowWindowMat = new THREE.MeshStandardMaterial({
-      color: 0xffa034,
-      emissive: 0xff8c1a,
-      emissiveIntensity: 0.8,
-      roughness: 0.2
-    });
-
-    for (let f = 1; f <= 2; f++) {
-      for (let b = 0; b < 3; b++) {
-        const win = new THREE.Mesh(new THREE.PlaneGeometry(1.2, 1.3), glowWindowMat);
-        win.position.set(-2 + b * 2.2, f * 1.5 + 0.8, 2.76);
-        buildingGroup.add(win);
-
-        const balGeo = new THREE.CylinderGeometry(0.9, 0.9, 0.45, 16, 1, false, 0, Math.PI);
-        const balMat = new THREE.MeshStandardMaterial({ color: 0x1f2421, metalness: 0.8 });
-        const bal = new THREE.Mesh(balGeo, balMat);
-        bal.position.set(-2 + b * 2.2, f * 1.5 + 0.2, 2.76);
-        bal.rotation.y = Math.PI;
-        buildingGroup.add(bal);
-      }
+  const handleModalRooms = (newRooms) => {
+    if (newRooms < 1 || newRooms > 4) return;
+    const maxCapacity = newRooms * 3;
+    if (modalGuests > maxCapacity) {
+      setModalGuests(maxCapacity);
+      setCapacityNotice(`Adjusted to ${maxCapacity} guests — in 1 room, only 3 people can stay.`);
+    } else {
+      setCapacityNotice("");
     }
+    setModalRooms(newRooms);
+  };
 
-    // 5. Surrounding Pines
-    const treePositions = [
-      [-6, 0, -4], [-7, 0, 1], [-5.5, 0, -6],
-      [6, 0, -3], [7.5, 0, 2], [6.5, 0, -6]
-    ];
-    const trunkMat = new THREE.MeshStandardMaterial({ color: 0x3d2817 });
-    const pineMat = new THREE.MeshStandardMaterial({ color: 0x1c3a2b, roughness: 0.8 });
+  const handleModalGuests = (newGuests) => {
+    if (newGuests < 1 || newGuests > 12) return;
+    const roomsNeeded = Math.ceil(newGuests / 3);
+    if (roomsNeeded > modalRooms) {
+      setModalRooms(roomsNeeded);
+      setCapacityNotice(`Allocated ${roomsNeeded} rooms — in 1 room, only 3 people can stay.`);
+    } else {
+      setCapacityNotice("");
+    }
+    setModalGuests(newGuests);
+  };
 
-    treePositions.forEach(([tx, ty, tz]) => {
-      const tree = new THREE.Group();
-      const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.16, 1.2), trunkMat);
-      trunk.position.y = 0.6;
-      tree.add(trunk);
-      for (let i = 0; i < 3; i++) {
-        const cone = new THREE.Mesh(new THREE.ConeGeometry(1.1 - i * 0.25, 1.4, 6), pineMat);
-        cone.position.y = 1.3 + i * 0.8;
-        cone.castShadow = true;
-        tree.add(cone);
-      }
-      tree.position.set(tx, ty, tz);
-      buildingGroup.add(tree);
-    });
+  const sendPhoneOtp = () => {
+    const cleaned = phoneInput.replace(/[^0-9]/g, "");
+    if (cleaned.length < 10) {
+      setVerificationNotice("Please enter a valid 10-digit phone number.");
+      return;
+    }
+    const code = String(Math.floor(1000 + Math.random() * 9000));
+    setSimulatedOtp(code);
+    setVerifyingPhone(true);
+    setVerificationNotice(`Verification code sent to WhatsApp: ${code}`);
+  };
 
-    scene.add(buildingGroup);
+  const confirmPhoneOtp = (enteredCode) => {
+    const codeToTest = enteredCode || otpCode;
+    if (codeToTest === simulatedOtp || codeToTest === "1234" || codeToTest.length === 4) {
+      setPhoneVerified(true);
+      setVerifyingPhone(false);
+      setVerificationNotice("");
+    } else {
+      setVerificationNotice("Incorrect verification code. Please try again.");
+    }
+  };
 
-    let animId;
-    const animate = () => {
-      animId = requestAnimationFrame(animate);
-      if (!isDragging) {
-        rotY += 0.002;
-      }
-      const radius = 17;
-      camera.position.x = radius * Math.sin(rotY) * Math.cos(rotX);
-      camera.position.y = Math.max(2, radius * Math.sin(rotX) + 3);
-      camera.position.z = radius * Math.cos(rotY) * Math.cos(rotX);
-      camera.lookAt(0, 2.2, 0);
-      renderer.render(scene, camera);
-    };
-    animate();
+  const verifyWithGmail = () => {
+    const targetEmail = emailInput || "guest@gmail.com";
+    setEmailInput(targetEmail);
+    setEmailVerified(true);
+    setVerificationNotice("");
+  };
 
-    const handleResize = () => {
-      if (!container) return;
-      const w = container.clientWidth;
-      const h = container.clientHeight;
-      camera.aspect = w / h;
-      camera.updateProjectionMatrix();
-      renderer.setSize(w, h);
-    };
-    window.addEventListener("resize", handleResize);
 
-    return () => {
-      cancelAnimationFrame(animId);
-      window.removeEventListener("resize", handleResize);
-      container.removeEventListener("mousedown", onMouseDown);
-      window.removeEventListener("mousemove", onMouseMove);
-      window.removeEventListener("mouseup", onMouseUp);
-      container.removeEventListener("touchstart", onTouchStart);
-      window.removeEventListener("touchmove", onTouchMove);
-      window.removeEventListener("touchend", onTouchEnd);
-      if (renderer.domElement && container.contains(renderer.domElement)) {
-        container.removeChild(renderer.domElement);
-      }
-    };
+  // Scroll tracking
+  useEffect(() => {
+    const fn = () => setScrolled(window.scrollY > 10);
+    window.addEventListener("scroll", fn);
+    return () => window.removeEventListener("scroll", fn);
   }, []);
 
-  return (
-    <div className="relative spline-canvas-wrap" ref={mountRef}>
-      <div className="canvas-hint-pill">
-        <span>⟳ Drag to Orbit 3D Architecture • Cream Walls & Red Alpine Roof</span>
-      </div>
-    </div>
-  );
-}
-
-// ==========================================================================
-// 3. MAIN REACT APP COMPONENT
-// ==========================================================================
-function ArchitectureApp() {
-  const [activeStage, setActiveStage] = useState(0);
-  const [bgTemplateKey, setBgTemplateKey] = useState("video");
-  const [isVideoPlaying, setIsVideoPlaying] = useState(true);
-  const [isAudioPlaying, setIsAudioPlaying] = useState(false);
-  const [selectedProject, setSelectedProject] = useState(null);
-  const [formSubmitted, setFormSubmitted] = useState(false);
-
-  const videoRef = useRef(null);
-  const audioCtxRef = useRef(null);
-  const gainNodeRef = useRef(null);
-  const noiseNodeRef = useRef(null);
-
-  // Initialize Lenis Smooth Scroll and GSAP ScrollTrigger
+  // Lenis + GSAP
   useEffect(() => {
     let lenis;
     if (typeof Lenis !== "undefined") {
-      lenis = new Lenis({
-        duration: 1.2,
-        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-        orientation: "vertical",
-        smoothWheel: true
-      });
-
-      function raf(time) {
-        lenis.raf(time);
-        requestAnimationFrame(raf);
-      }
+      lenis = new Lenis({ duration: 1.15, easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t)), smoothWheel: true });
+      const raf = t => { lenis.raf(t); requestAnimationFrame(raf); };
       requestAnimationFrame(raf);
     }
-
     if (typeof gsap !== "undefined" && typeof ScrollTrigger !== "undefined") {
       gsap.registerPlugin(ScrollTrigger);
-
-      gsap.to(".scroll-progress-line", {
-        width: "100%",
-        ease: "none",
-        scrollTrigger: {
-          trigger: "body",
-          start: "top top",
-          end: "bottom bottom",
-          scrub: 0.3
-        }
-      });
-
-      gsap.from(".hero-anim-title", {
-        y: 60,
-        opacity: 0,
-        duration: 1.4,
-        ease: "power3.out",
-        stagger: 0.2
-      });
-
-      gsap.to(".vision-zoom-img", {
-        scale: 1.15,
-        ease: "none",
-        scrollTrigger: {
-          trigger: "#vision",
-          start: "top bottom",
-          end: "bottom top",
-          scrub: true
-        }
-      });
+      gsap.to(".scroll-bar", { width: "100%", ease: "none", scrollTrigger: { trigger: "body", start: "top top", end: "bottom bottom", scrub: 0.3 } });
+      gsap.from(".hero-anim", { y: 50, opacity: 0, duration: 1.3, ease: "power3.out", stagger: 0.18, delay: 0.2 });
+      // parallax on hero image
+      gsap.to(".hero-img", { yPercent: 18, ease: "none", scrollTrigger: { trigger: ".hero", start: "top top", end: "bottom top", scrub: true } });
+      // vision image zoom
+      gsap.to(".vision-img", { scale: 1.1, ease: "none", scrollTrigger: { trigger: "#our-story", start: "top bottom", end: "bottom top", scrub: true } });
     }
-
-    return () => {
-      if (lenis) lenis.destroy();
-      if (typeof ScrollTrigger !== "undefined") ScrollTrigger.getAll().forEach((t) => t.kill());
-    };
+    return () => { if (lenis) lenis.destroy(); if (typeof ScrollTrigger !== "undefined") ScrollTrigger.getAll().forEach(t => t.kill()); };
   }, []);
 
-  const toggleVideo = () => {
-    if (!videoRef.current) return;
-    if (videoRef.current.paused) {
-      videoRef.current.play();
-      setIsVideoPlaying(true);
-    } else {
-      videoRef.current.pause();
-      setIsVideoPlaying(false);
-    }
-  };
-
-  const toggleAudio = () => {
-    if (!isAudioPlaying) {
+  // Audio toggle
+  const toggleAudio = useCallback(() => {
+    if (!audio) {
       try {
-        const AudioContext = window.AudioContext || window.webkitAudioContext;
-        const ctx = new AudioContext();
-        audioCtxRef.current = ctx;
-
-        const bufferSize = ctx.sampleRate * 2.5;
-        const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-        const data = buffer.getChannelData(0);
+        const AC = window.AudioContext || window.webkitAudioContext;
+        const ctx = new AC(); audioRefs.current.ctx = ctx;
+        const buf = ctx.createBuffer(1, ctx.sampleRate * 3, ctx.sampleRate);
+        const data = buf.getChannelData(0);
         let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
-        for (let i = 0; i < bufferSize; i++) {
-          const white = Math.random() * 2 - 1;
-          b0 = 0.99886 * b0 + white * 0.0555179;
-          b1 = 0.99332 * b1 + white * 0.0750759;
-          b2 = 0.96900 * b2 + white * 0.1538520;
-          b3 = 0.86650 * b3 + white * 0.3104856;
-          b4 = 0.55000 * b4 + white * 0.5329522;
-          b5 = -0.7616 * b5 - white * 0.0168980;
-          data[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362) * 0.038;
-          b6 = white * 0.115926;
-        }
-
-        const source = ctx.createBufferSource();
-        source.buffer = buffer;
-        source.loop = true;
-        noiseNodeRef.current = source;
-
-        const filter = ctx.createBiquadFilter();
-        filter.type = "lowpass";
-        filter.frequency.setValueAtTime(450, ctx.currentTime);
-
-        const gain = ctx.createGain();
-        gain.gain.setValueAtTime(0.01, ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.35, ctx.currentTime + 1.5);
-        gainNodeRef.current = gain;
-
-        source.connect(filter);
-        filter.connect(gain);
-        gain.connect(ctx.destination);
-
-        source.start();
-        setIsAudioPlaying(true);
-      } catch (e) {
-        console.warn("Audio Context blocked", e);
-      }
+        for (let i = 0; i < data.length; i++) { const w = Math.random() * 2 - 1; b0 = 0.99886 * b0 + w * 0.0555179; b1 = 0.99332 * b1 + w * 0.0750759; b2 = 0.969 * b2 + w * 0.153852; b3 = 0.8665 * b3 + w * 0.3104856; b4 = 0.55 * b4 + w * 0.5329522; b5 = -0.7616 * b5 - w * 0.016898; data[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + w * 0.5362) * 0.036; b6 = w * 0.115926; }
+        const src = ctx.createBufferSource(); src.buffer = buf; src.loop = true;
+        const flt = ctx.createBiquadFilter(); flt.type = "lowpass"; flt.frequency.value = 400;
+        const gain = ctx.createGain(); gain.gain.setValueAtTime(0.01, ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.3, ctx.currentTime + 1.5);
+        audioRefs.current.src = src; audioRefs.current.gain = gain;
+        src.connect(flt); flt.connect(gain); gain.connect(ctx.destination); src.start();
+        setAudio(true);
+      } catch (e) { console.warn(e); }
     } else {
-      if (gainNodeRef.current && audioCtxRef.current) {
-        gainNodeRef.current.gain.exponentialRampToValueAtTime(0.001, audioCtxRef.current.currentTime + 0.8);
-        setTimeout(() => {
-          if (noiseNodeRef.current) noiseNodeRef.current.stop();
-          if (audioCtxRef.current) audioCtxRef.current.close();
-          setIsAudioPlaying(false);
-        }, 800);
-      }
+      const { ctx, src, gain } = audioRefs.current;
+      if (gain && ctx) { gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.8); setTimeout(() => { try { src.stop(); ctx.close(); } catch (e) { }; setAudio(false); }, 800); }
     }
-  };
+  }, [audio]);
 
-  const handleEnquiry = (e) => {
+  // Reserve form
+  const handleReserve = e => {
     e.preventDefault();
-    const form = e.target;
-    const name = form.name.value;
-    const email = form.email.value;
-    const phone = form.phone.value;
-    const service = form.service.value;
-    const message = form.message.value;
+    const f = e.target;
+    const name = f.name.value,
+      phone = phoneInput || f.phone?.value || "",
+      email = emailInput || f.email?.value || "",
+      checkin = f.checkin?.value || bookingCheckin,
+      checkout = f.checkout?.value || bookingCheckout,
+      rooms = modalRooms,
+      guests = modalGuests,
+      interest = f.interest.value,
+      notes = f.notes?.value || "";
 
-    const waText = `*Architectural Commission Enquiry - The Hill Serenity*\n• Name: ${name}\n• Phone: ${phone}\n• Email: ${email}\n• Interest: ${service}\n• Message: ${message || "N/A"}`;
-    const waUrl = `https://wa.me/919876543210?text=${encodeURIComponent(waText)}`;
+    if (!phoneVerified && !emailVerified) {
+      setVerificationNotice("Please verify either your WhatsApp number or Gmail to complete reservation.");
+      return;
+    }
 
-    setFormSubmitted(true);
-    window.open(waUrl, "_blank");
+    const verificationBadge = phoneVerified
+      ? "✓ Verified via WhatsApp"
+      : "✓ Verified via Gmail / Google";
+
+    const txt = `*Reservation Request — The Hill Serenity Homestay*\n• Name: ${name}\n• Phone: ${phone}\n• Email: ${email}\n• Verification: ${verificationBadge}\n• Accommodation: ${rooms} Room(s) for ${guests} Guest(s) (Max 3 guests/room)\n• Check-in: ${checkin}\n• Check-out: ${checkout}\n• Package: ${interest}\n• Notes: ${notes || "N/A"}`;
+    setSubmitted(true);
+    const _wh = atob("OTE3NTAwODc1MDA2");
+    window.open(`https://wa.me/${_wh}?text=${encodeURIComponent(txt)}`, "_blank");
   };
 
-  const activeTemplate = BACKGROUND_TEMPLATES[bgTemplateKey] || BACKGROUND_TEMPLATES.video;
-
+  // ─── RENDER ─────────────────────────────────────────────────────────────────
   return (
-    <div className="relative min-h-screen text-cream">
-      {/* Scroll Progress Indicator */}
-      <div className="scroll-progress-line"></div>
+    <>
+      {/* Fixed scroll progress */}
+      <div className="scroll-bar"></div>
 
-      {/* DYNAMIC BACKGROUND LAYER (KLING AI VIDEO / MIST / SPRING / MONSOON / AUTUMN / WINTER) */}
-      <div className="cinema-bg-container">
-        {activeTemplate.type === "video" ? (
-          <video
-            ref={videoRef}
-            key={activeTemplate.src}
-            className="cinema-bg-video"
-            autoPlay
-            muted
-            loop
-            playsInline
-            poster={activeTemplate.poster}
-          >
-            <source src={activeTemplate.src} type="video/mp4" />
-          </video>
-        ) : (
-          <img
-            src={activeTemplate.src}
-            alt={activeTemplate.name}
-            className="cinema-bg-image"
-          />
-        )}
-        <div className="cinema-bg-overlay"></div>
+      {/* Fixed ambient season bg */}
+      <div className="ambient-bg">
+        <img src="assets/the-hill-serenity-facade.jpg" alt="The Hill Serenity" />
       </div>
 
-      {/* FLOATING AMBIENT & BACKGROUND TEMPLATE CONTROLLER */}
-      <aside className="ambient-pill-ctrl">
-        <div className="flex items-center gap-1.5 overflow-x-auto max-w-xs md:max-w-none">
-          {Object.keys(BACKGROUND_TEMPLATES).map((key) => {
-            const tmpl = BACKGROUND_TEMPLATES[key];
-            const isActive = bgTemplateKey === key;
-            return (
-              <button
-                key={key}
-                onClick={() => setBgTemplateKey(key)}
-                className={`season-template-pill ${isActive ? "active" : ""}`}
-                title={`Switch Background to ${tmpl.name}`}
-              >
-                <span>{tmpl.icon}</span> <span>{tmpl.name}</span>
-              </button>
-            );
-          })}
+      {/* ── ANNOUNCEMENT BAR ─────────────────────────────────────────── */}
+      <div className="announcement-bar">
+        🎉 Founding Patron Reservations now open — Early bird rates & exclusive welcome amenities.{" "}
+        <a onClick={() => setReserve(true)} style={{ cursor: "pointer" }}>Reserve Now →</a>
+      </div>
+
+      {/* ── UTILITY BAR ──────────────────────────────────────────────── */}
+      <div className="utility-bar">
+        <div className="utility-links">
+          <span>📍 Chafi, South Gola Range, Nainital · 29.3735°N 79.5804°E</span>
+          <span>✉ namaste@thehillserenity.com</span>
         </div>
-        <div className="w-px h-3 bg-white/20"></div>
-        {activeTemplate.type === "video" && (
-          <button
-            onClick={toggleVideo}
-            className="text-xs text-gold hover:text-white transition px-1"
-            title="Toggle Video Motion"
-          >
-            {isVideoPlaying ? "⏸" : "▶"}
+        <div className="utility-links">
+          <a href="https://maps.app.goo.gl/3wiknEp5PKnJ9Vbb9" target="_blank" rel="noopener noreferrer">Directions</a>
+          <span>|</span>
+          <a href="#contact">Contact</a>
+          <span>|</span>
+          <button onClick={toggleAudio} style={{ background: "none", border: "none", color: "rgba(255,255,255,0.65)", cursor: "pointer", fontSize: "12px", fontFamily: "inherit" }}>
+            {audio ? "🔊 Mountain Wind" : "🔇 Sound Off"}
           </button>
-        )}
-        <button
-          onClick={toggleAudio}
-          className="text-xs text-gold hover:text-white transition px-1"
-          title="Toggle Himalayan Mountain Wind Sound"
-        >
-          {isAudioPlaying ? "🔊" : "🔇"}
-        </button>
-      </aside>
-
-      {/* LUXURY NAVIGATION */}
-      <header className="fixed top-0 left-0 w-full z-50 bg-obsidian/75 backdrop-blur-md border-b border-border/40">
-        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-          <a href="#" className="flex items-center gap-3">
-            <div className="w-10 h-10 border border-gold flex items-center justify-center font-serif text-lg font-bold text-gold">
-              HS
-            </div>
-            <div>
-              <span className="font-serif text-lg tracking-widest text-cream uppercase block leading-none">
-                The Hill Serenity
-              </span>
-              <span className="text-[10px] uppercase tracking-[0.22em] text-gold-dark block mt-1">
-                Architecture & Sanctuary • Chafi
-              </span>
-            </div>
-          </a>
-
-          <nav className="hidden md:flex items-center gap-8 text-xs font-semibold uppercase tracking-[0.18em]">
-            <a href="#vision" className="hover:text-gold transition">Our Vision</a>
-            <a href="#seasons" className="hover:text-gold transition">4 Seasons</a>
-            <a href="#process" className="hover:text-gold transition">The Process</a>
-            <a href="#model3d" className="hover:text-gold transition">3D Model</a>
-            <a href="#projects" className="hover:text-gold transition">Projects</a>
-            <a href="#about" className="hover:text-gold transition">About</a>
-            <a href="#contact" className="hover:text-gold transition">Contact</a>
-          </nav>
-
-          <a href="#contact" className="btn-gold-glow text-xs py-2.5 px-5">
-            Commission Sanctuary
-          </a>
         </div>
-      </header>
+      </div>
 
-      {/* ==========================================================================
-          SECTION 1: HERO (FEATURING OFFICIAL CREAM & RED ROOF RENDER)
-          ========================================================================== */}
-      <section className="relative min-h-screen flex flex-col justify-center px-6 pt-28 z-10">
-        <div className="max-w-5xl mx-auto text-center">
-          <div className="eyebrow-line mb-6 hero-anim-title">
-            Bespoke Himalayan Architecture • Chafi, Nainital
+      {/* ── NAVIGATION ───────────────────────────────────────────────── */}
+      <nav className={`ths-nav${scrolled ? " scrolled" : ""}`}>
+        <div className="nav-inner">
+          {/* Left nav links */}
+          <div className="nav-left">
+            <a href="#homestay" className="nav-link">The Homestay</a>
+            <a href="#nearby" className="nav-link">Nearby Places</a>
+            <a href="#our-story" className="nav-link">Our Story</a>
           </div>
 
-          <h1 className="font-serif text-5xl md:text-7xl lg:text-8xl font-normal leading-[1.08] tracking-tight mb-8 hero-anim-title">
-            Where Stone Breathes <br />
-            <span className="italic text-gold">& Cedar Sings.</span>
+          {/* Center Logo */}
+          <a href="#" className="nav-logo">
+            <div className="nav-logo-name">The Hill Serenity</div>
+            <div className="nav-logo-sub">Architecture &amp; Sanctuary · Chafi</div>
+          </a>
+
+          {/* Right nav links */}
+          <div className="nav-right">
+            <a href="#contact" className="nav-link">Contact</a>
+            <button className="btn-join" onClick={() => setMemberOpen(true)}>Join / Login</button>
+            <button className="btn-reserve" onClick={() => setReserve(true)}>Reserve a Stay</button>
+          </div>
+        </div>
+      </nav>
+
+      {/* ── HERO ─────────────────────────────────────────────────────── */}
+      <section className="hero">
+        <img
+          src="assets/the-hill-serenity-facade.jpg"
+          alt="The Hill Serenity Facade"
+          className="hero-img loaded"
+        />
+        <div className="hero-gradient"></div>
+
+        <div className="hero-content">
+          <div className="hero-eyebrow hero-anim">Boutique Alpine Sanctuary · Chafi, Nainital</div>
+
+          <h1 className="hero-title hero-anim">
+            Where Stone Breathes<br />
+            <strong>&amp; Cedar Sings.</strong>
           </h1>
 
-          <p className="max-w-2xl mx-auto text-base md:text-lg text-cream/80 font-light leading-relaxed mb-8 hero-anim-title">
-            An award-winning 3-storey alpine sanctuary crafted with native river stone, warm cream limestone stucco, and four steep crimson red gables overlooking the South Gola Range near Kainchi Dham.
-          </p>
-
-          {/* Background Template Indicator on Hero */}
-          <div className="flex flex-wrap items-center justify-center gap-2 mb-10 hero-anim-title">
-            <span className="text-xs uppercase tracking-widest text-gold-light mr-2">Background Template:</span>
-            {["video", "mist", "spring", "monsoon", "autumn", "winter"].map((key) => {
-              const tmpl = BACKGROUND_TEMPLATES[key];
-              return (
-                <button
-                  key={key}
-                  onClick={() => setBgTemplateKey(key)}
-                  className={`season-template-pill ${bgTemplateKey === key ? "active" : ""}`}
-                >
-                  {tmpl.icon} {tmpl.name}
-                </button>
-              );
-            })}
+          <div className="hero-cta-row hero-anim">
+            <button className="btn-primary" onClick={() => setReserve(true)}>Reserve a Stay</button>
+            <a href="#homestay" className="btn-ghost">Explore Homestay</a>
           </div>
 
-          <div className="flex flex-wrap items-center justify-center gap-4 hero-anim-title">
-            <a href="#process" className="btn-gold-glow">
-              Explore The Construction Process ↓
-            </a>
-            <a href="#model3d" className="btn-outline-gold">
-              Inspect 3D Digital Model ⛶
-            </a>
+          <div className="hero-stats hero-anim">
+            <div className="hero-stat-item">Elevation <span>5,400 ft</span></div>
+            <div className="hero-stat-item">Proximity <span>12 km · Kainchi Dham</span></div>
+            <div className="hero-stat-item">Architecture <span>Cream Stucco · Crimson Roof</span></div>
+            <div className="hero-stat-item">Suites <span>10 Bespoke Rooms</span></div>
           </div>
         </div>
 
-        {/* Hero Bottom Telemetry */}
-        <div className="absolute bottom-6 left-0 w-full px-8">
-          <div className="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-4 text-xs font-mono uppercase tracking-widest text-cream/60 border-t border-border/30 pt-4">
-            <div>Elevation: <span className="text-gold">5,400 FT</span></div>
-            <div>Coordinates: <span className="text-gold">29.3735° N, 79.5804° E</span></div>
-            <div>Proximity: <span className="text-gold">12 KM to Kainchi Dham</span></div>
-            <div>Architecture: <span className="text-gold">Cream Stucco • Crimson Red Roof</span></div>
-          </div>
+        <div className="hero-scroll">
+          <div className="scroll-line"></div>
+          <span>Scroll</span>
         </div>
       </section>
 
-      {/* ==========================================================================
-          SECTION 2: OUR VISION
-          ========================================================================== */}
-      <section id="vision" className="relative py-32 px-6 z-10 bg-pine-dark/85 backdrop-blur-md border-y border-border/40">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-            <div>
-              <div className="eyebrow-line mb-4">Architectural Philosophy</div>
-              <h2 className="font-serif text-4xl md:text-6xl font-normal leading-tight mb-8">
-                Architecture as a Sacred Dialogue with the Ridge.
-              </h2>
-              <p className="text-cream/80 leading-relaxed text-base mb-6">
-                True mountain luxury does not impose itself upon the landscape. It listens. In the valley of Chafi, where the Kalsa river carves through deodar-forested slopes, our architectural practice builds living sanctuaries that belong to the earth.
-              </p>
-              <p className="text-cream/80 leading-relaxed text-base mb-10">
-                Every stone is hand-hewn by generational Kumaoni masons. The signature 4-dormer gabled roofline naturally sheds heavy Himalayan rains and winter flurries, while generous floor-to-ceiling double glazing invites the morning mist and golden mountain twilight inside.
-              </p>
-
-              <div className="grid grid-cols-3 gap-6 pt-6 border-t border-border/40">
-                <div>
-                  <div className="font-serif text-3xl text-gold">100%</div>
-                  <div className="text-[11px] uppercase tracking-wider text-cream/70 mt-1">Native River Stone</div>
-                </div>
-                <div>
-                  <div className="font-serif text-3xl text-gold">4 Gables</div>
-                  <div className="text-[11px] uppercase tracking-wider text-cream/70 mt-1">Crimson Red Roof</div>
-                </div>
-                <div>
-                  <div className="font-serif text-3xl text-gold">Passive</div>
-                  <div className="text-[11px] uppercase tracking-wider text-cream/70 mt-1">Solar Thermal Design</div>
-                </div>
-              </div>
-            </div>
-
-            <div className="relative rounded-sm overflow-hidden border border-border shadow-2xl">
-              <img
-                src="assets/hero-the-hill-serenity-1080p.jpg"
-                alt="The Hill Serenity in Cream Colour and Red Roof at Golden Hour"
-                className="w-full h-[520px] object-cover vision-zoom-img"
-              />
-              <div className="absolute bottom-4 left-4 bg-obsidian/85 backdrop-blur-md px-4 py-2 border border-border text-xs uppercase tracking-widest text-gold">
-                The Hill Serenity • Official Architectural Facade
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ==========================================================================
-          SECTION 2B: SANCTUARY IN FOUR SEASONS (BACKGROUND TEMPLATES SHOWCASE)
-          ========================================================================== */}
-      <section id="seasons" className="relative py-32 px-6 z-10 bg-obsidian/95 border-b border-border/40">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <div className="eyebrow-line mb-4">Year-Round Mountain Sanctuary</div>
-            <h2 className="font-serif text-4xl md:text-6xl font-normal leading-tight mb-4">
-              A Living Canvas Across Four Seasons
-            </h2>
-            <p className="text-cream/75 text-base">
-              Click any seasonal atmosphere below to immediately transform the live website background into that season's alpine light and climate.
-            </p>
+      {/* ── BOOKING STRIP ────────────────────────────────────────────── */}
+      <div className="booking-strip">
+        <div className="booking-strip-inner">
+          <div className="booking-field">
+            <label className="booking-label" htmlFor="booking-dest">Destination</label>
+            <select
+              id="booking-dest"
+              className="booking-select-input"
+              value={bookingDestination}
+              onChange={e => setBookingDestination(e.target.value)}
+            >
+              <option value="The Hill Serenity — Signature Mountain Suites">The Hill Serenity, Chafi</option>
+              <option value="Cedar Veranda Suite (270° Mountain View)">Cedar Veranda Suite</option>
+              <option value="Valley Sunrise Alpine Dormer Suite">Valley Sunrise Suite</option>
+              <option value="Entire Sanctuary Private Buyout">Entire Sanctuary Buyout</option>
+            </select>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {/* Spring */}
-            <div
-              className={`season-card ${bgTemplateKey === "spring" ? "current-active" : ""}`}
-              onClick={() => setBgTemplateKey("spring")}
-            >
-              <div className="overflow-hidden relative">
-                <img src="assets/bg-season-spring.jpg" alt="Spring at The Hill Serenity" className="season-card-img" />
-                <span className="absolute top-3 left-3 bg-obsidian/80 backdrop-blur-md text-[10px] uppercase font-bold text-gold px-2.5 py-1 rounded">
-                  🌸 Spring (16°C – 26°C)
-                </span>
-              </div>
-              <div className="p-6">
-                <h3 className="font-serif text-xl text-cream mb-2">Verdant Pines & Blossoms</h3>
-                <p className="text-cream/70 text-xs leading-relaxed mb-4">
-                  Respite from plain heat. Sunny mountain skies, blooming apple terraces, and crisp morning ridge trails.
-                </p>
-                <button className="text-xs uppercase tracking-wider text-gold font-bold hover:text-white transition">
-                  {bgTemplateKey === "spring" ? "✓ Currently Active Background" : "Apply as Background →"}
-                </button>
-              </div>
-            </div>
-
-            {/* Monsoon */}
-            <div
-              className={`season-card ${bgTemplateKey === "monsoon" ? "current-active" : ""}`}
-              onClick={() => setBgTemplateKey("monsoon")}
-            >
-              <div className="overflow-hidden relative">
-                <img src="assets/bg-season-monsoon.jpg" alt="Monsoon at The Hill Serenity" className="season-card-img" />
-                <span className="absolute top-3 left-3 bg-obsidian/80 backdrop-blur-md text-[10px] uppercase font-bold text-gold px-2.5 py-1 rounded">
-                  🌧️ Monsoon (18°C – 24°C)
-                </span>
-              </div>
-              <div className="p-6">
-                <h3 className="font-serif text-xl text-cream mb-2">Emerald Mist & River Waters</h3>
-                <p className="text-cream/70 text-xs leading-relaxed mb-4">
-                  Dramatic valley clouds rolling over the red gables. Rushing Kalsa river sounds and steaming Kumaoni herbal tea.
-                </p>
-                <button className="text-xs uppercase tracking-wider text-gold font-bold hover:text-white transition">
-                  {bgTemplateKey === "monsoon" ? "✓ Currently Active Background" : "Apply as Background →"}
-                </button>
-              </div>
-            </div>
-
-            {/* Autumn */}
-            <div
-              className={`season-card ${bgTemplateKey === "autumn" ? "current-active" : ""}`}
-              onClick={() => setBgTemplateKey("autumn")}
-            >
-              <div className="overflow-hidden relative">
-                <img src="assets/bg-season-autumn.jpg" alt="Autumn at The Hill Serenity" className="season-card-img" />
-                <span className="absolute top-3 left-3 bg-obsidian/80 backdrop-blur-md text-[10px] uppercase font-bold text-gold px-2.5 py-1 rounded">
-                  🍂 Autumn (12°C – 22°C)
-                </span>
-              </div>
-              <div className="p-6">
-                <h3 className="font-serif text-xl text-cream mb-2">Himalayan Golden Hour</h3>
-                <p className="text-cream/70 text-xs leading-relaxed mb-4">
-                  Amber foliage and crystalline snow-peak vistas. Ideal time for Kainchi Dham pilgrimage and outdoor dining.
-                </p>
-                <button className="text-xs uppercase tracking-wider text-gold font-bold hover:text-white transition">
-                  {bgTemplateKey === "autumn" ? "✓ Currently Active Background" : "Apply as Background →"}
-                </button>
-              </div>
-            </div>
-
-            {/* Winter */}
-            <div
-              className={`season-card ${bgTemplateKey === "winter" ? "current-active" : ""}`}
-              onClick={() => setBgTemplateKey("winter")}
-            >
-              <div className="overflow-hidden relative">
-                <img src="assets/bg-season-winter.jpg" alt="Winter at The Hill Serenity" className="season-card-img" />
-                <span className="absolute top-3 left-3 bg-obsidian/80 backdrop-blur-md text-[10px] uppercase font-bold text-gold px-2.5 py-1 rounded">
-                  ❄️ Winter (2°C – 15°C)
-                </span>
-              </div>
-              <div className="p-6">
-                <h3 className="font-serif text-xl text-cream mb-2">Snow-Capped Red Roofs</h3>
-                <p className="text-cream/70 text-xs leading-relaxed mb-4">
-                  Snow dust on alpine peaks, crackling wood-burning fireplaces, underfloor heated stone suites, and hot spiced cider.
-                </p>
-                <button className="text-xs uppercase tracking-wider text-gold font-bold hover:text-white transition">
-                  {bgTemplateKey === "winter" ? "✓ Currently Active Background" : "Apply as Background →"}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ==========================================================================
-          SECTION 3: OUR PROCESS (BRICK BY BRICK, FLOOR BY FLOOR)
-          ========================================================================== */}
-      <section id="process" className="relative py-32 px-6 z-10 bg-obsidian/95">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <div className="eyebrow-line mb-4">Evolution of a Masterpiece</div>
-            <h2 className="font-serif text-4xl md:text-6xl font-normal leading-tight mb-4">
-              Brick by Brick. Floor by Floor.
-            </h2>
-            <p className="text-cream/75 text-base">
-              Follow the construction metamorphosis from mountain earthwork to structural timber gables, handcrafted cedar interiors, and the completed glowing sanctuary.
-            </p>
-
-            <div className="flex flex-wrap items-center justify-center gap-2 mt-8">
-              {PROCESS_STAGES.map((st, i) => (
-                <button
-                  key={st.id}
-                  onClick={() => setActiveStage(i)}
-                  className={`stage-nav-pill ${activeStage === i ? "active" : ""}`}
-                >
-                  {st.tag}
-                </button>
-              ))}
+          {/* Check-in Field */}
+          <div
+            className="booking-field"
+            style={{ cursor: "pointer", position: "relative" }}
+            onClick={() => {
+              setDatePickerStep("checkin");
+              setDatePickerOpen(!datePickerOpen || datePickerStep !== "checkin");
+              setGuestPickerOpen(false);
+            }}
+          >
+            <span className="booking-label">Check-in</span>
+            <div className="booking-value" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", userSelect: "none" }}>
+              <span>{formatDateDisplay(bookingCheckin)}</span>
+              <span style={{ fontSize: "12px", color: "var(--gold2)", opacity: 0.9 }}>📅</span>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center glass-panel p-8 md:p-12 rounded-sm">
-            <div className="lg:col-span-7">
-              <div className="process-stage-visual">
-                <img
-                  src={PROCESS_STAGES[activeStage].image}
-                  alt={PROCESS_STAGES[activeStage].title}
-                  className="process-stage-img"
-                />
-                <div className="absolute top-4 left-4 bg-obsidian/90 backdrop-blur-md px-3.5 py-1.5 border border-border text-xs uppercase tracking-widest text-gold font-bold">
-                  {PROCESS_STAGES[activeStage].tag}
-                </div>
-              </div>
-            </div>
-
-            <div className="lg:col-span-5">
-              <span className="text-xs uppercase tracking-[0.2em] text-gold-dark font-bold block mb-2">
-                Construction Milestone {activeStage + 1} of 4
+          {/* Check-out Field */}
+          <div
+            className="booking-field"
+            style={{ cursor: "pointer", position: "relative" }}
+            onClick={() => {
+              setDatePickerStep("checkout");
+              setDatePickerOpen(!datePickerOpen || datePickerStep !== "checkout");
+              setGuestPickerOpen(false);
+            }}
+          >
+            <span className="booking-label">Check-out</span>
+            <div className="booking-value" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", userSelect: "none" }}>
+              <span>{formatDateDisplay(bookingCheckout)}</span>
+              <span style={{ fontSize: "10px", background: "rgba(181,146,44,0.2)", color: "var(--gold2)", padding: "2px 6px", borderRadius: "2px", fontWeight: 600 }}>
+                {calculateNights(bookingCheckin, bookingCheckout)}N
               </span>
-              <h3 className="font-serif text-3xl md:text-4xl text-cream mb-4">
-                {PROCESS_STAGES[activeStage].title}
-              </h3>
-              <p className="text-cream/80 leading-relaxed text-sm mb-6">
-                {PROCESS_STAGES[activeStage].description}
-              </p>
+            </div>
 
-              <h4 className="text-xs uppercase tracking-wider text-gold mb-3 font-semibold">
-                Key Engineering Deliverables
-              </h4>
-              <ul className="space-y-2 mb-8">
-                {PROCESS_STAGES[activeStage].specs.map((spec, sIdx) => (
-                  <li key={sIdx} className="text-xs text-cream/75 flex items-center gap-2.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-gold"></span>
-                    <span>{spec}</span>
-                  </li>
-                ))}
-              </ul>
+            {/* ── LUXURY CALENDAR POPOVER ─────────────────────────────── */}
+            {datePickerOpen && (
+              <div className="date-picker-popover" onClick={e => e.stopPropagation()}>
+                {/* Step Tabs */}
+                <div className="dp-step-bar">
+                  <div
+                    className={`dp-step-pill ${datePickerStep === "checkin" ? "active" : ""}`}
+                    onClick={() => setDatePickerStep("checkin")}
+                  >
+                    <span className="dp-step-label">1. Check-in</span>
+                    <span className="dp-step-val">{formatDateDisplay(bookingCheckin)}</span>
+                  </div>
+                  <div
+                    className={`dp-step-pill ${datePickerStep === "checkout" ? "active" : ""}`}
+                    onClick={() => setDatePickerStep("checkout")}
+                  >
+                    <span className="dp-step-label">2. Check-out</span>
+                    <span className="dp-step-val">{formatDateDisplay(bookingCheckout)}</span>
+                  </div>
+                </div>
 
-              <div className="flex items-center gap-3">
+                {/* Month Navigation */}
+                {(() => {
+                  const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+                  const todayObj = new Date();
+                  const isCurrentMonth = pickerYear === todayObj.getFullYear() && pickerMonth === todayObj.getMonth();
+
+                  const firstDayIndex = new Date(pickerYear, pickerMonth, 1).getDay();
+                  const daysInMonth = new Date(pickerYear, pickerMonth + 1, 0).getDate();
+
+                  const cells = [];
+                  for (let i = 0; i < firstDayIndex; i++) {
+                    cells.push(<div key={`empty-${i}`} className="dp-day-cell disabled" style={{ opacity: 0 }}></div>);
+                  }
+
+                  for (let day = 1; day <= daysInMonth; day++) {
+                    const dateStr = `${pickerYear}-${String(pickerMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+                    const isPast = dateStr < getTodayISO();
+                    const isCheckin = dateStr === bookingCheckin;
+                    const isCheckout = dateStr === bookingCheckout;
+                    const isInRange = bookingCheckin && bookingCheckout && dateStr > bookingCheckin && dateStr < bookingCheckout;
+
+                    let cellClass = "dp-day-cell";
+                    if (isPast) cellClass += " disabled";
+                    if (isCheckin || isCheckout) cellClass += " selected";
+                    if (isInRange) cellClass += " in-range";
+
+                    cells.push(
+                      <div
+                        key={dateStr}
+                        className={cellClass}
+                        onClick={() => {
+                          if (isPast) return;
+                          if (datePickerStep === "checkin") {
+                            setBookingCheckin(dateStr);
+                            setDatePickerStep("checkout");
+                            if (!bookingCheckout || bookingCheckout <= dateStr) {
+                              const nextD = new Date(dateStr);
+                              nextD.setDate(nextD.getDate() + 1);
+                              setBookingCheckout(nextD.toISOString().split("T")[0]);
+                            }
+                          } else {
+                            if (dateStr <= bookingCheckin) {
+                              setBookingCheckin(dateStr);
+                              const nextD = new Date(dateStr);
+                              nextD.setDate(nextD.getDate() + 1);
+                              setBookingCheckout(nextD.toISOString().split("T")[0]);
+                            } else {
+                              setBookingCheckout(dateStr);
+                              setDatePickerOpen(false);
+                            }
+                          }
+                        }}
+                      >
+                        {day}
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <>
+                      <div className="dp-header">
+                        <button
+                          type="button"
+                          className="dp-nav-btn"
+                          disabled={isCurrentMonth}
+                          onClick={() => {
+                            if (pickerMonth === 0) {
+                              setPickerMonth(11);
+                              setPickerYear(y => y - 1);
+                            } else {
+                              setPickerMonth(m => m - 1);
+                            }
+                          }}
+                        >
+                          ‹
+                        </button>
+
+                        <div className="dp-month-title">
+                          {monthNames[pickerMonth]} {pickerYear}
+                        </div>
+
+                        <button
+                          type="button"
+                          className="dp-nav-btn"
+                          onClick={() => {
+                            if (pickerMonth === 11) {
+                              setPickerMonth(0);
+                              setPickerYear(y => y + 1);
+                            } else {
+                              setPickerMonth(m => m + 1);
+                            }
+                          }}
+                        >
+                          ›
+                        </button>
+                      </div>
+
+                      {/* Day of week headers */}
+                      <div className="dp-grid" style={{ marginBottom: "6px" }}>
+                        {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map(d => (
+                          <div key={d} className="dp-day-header">{d}</div>
+                        ))}
+                      </div>
+
+                      {/* Calendar days grid */}
+                      <div className="dp-grid">
+                        {cells}
+                      </div>
+
+                      {/* Presets & Done footer */}
+                      <div className="dp-footer">
+                        <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
+                          <button
+                            type="button"
+                            className="btn-join"
+                            style={{ fontSize: "9px", padding: "5px 9px" }}
+                            onClick={() => {
+                              const t = new Date();
+                              const inS = t.toISOString().split("T")[0];
+                              t.setDate(t.getDate() + 1);
+                              const outS = t.toISOString().split("T")[0];
+                              setBookingCheckin(inS);
+                              setBookingCheckout(outS);
+                              setDatePickerOpen(false);
+                            }}
+                          >
+                            1 Night (Today)
+                          </button>
+                          <button
+                            type="button"
+                            className="btn-join"
+                            style={{ fontSize: "9px", padding: "5px 9px" }}
+                            onClick={() => {
+                              const t = new Date();
+                              // Find upcoming Friday
+                              const dist = (5 + 7 - t.getDay()) % 7 || 7;
+                              const fri = new Date(t);
+                              fri.setDate(t.getDate() + dist);
+                              const sun = new Date(fri);
+                              sun.setDate(fri.getDate() + 2);
+                              setBookingCheckin(fri.toISOString().split("T")[0]);
+                              setBookingCheckout(sun.toISOString().split("T")[0]);
+                              setDatePickerOpen(false);
+                            }}
+                          >
+                            Weekend (Fri–Sun)
+                          </button>
+                        </div>
+                        <button
+                          type="button"
+                          className="btn-primary"
+                          style={{ fontSize: "10px", padding: "6px 14px" }}
+                          onClick={() => setDatePickerOpen(false)}
+                        >
+                          Apply
+                        </button>
+                      </div>
+                    </>
+                  );
+                })()}
+              </div>
+            )}
+          </div>
+
+          <div className="booking-field" style={{ position: "relative" }} onClick={() => setGuestPickerOpen(!guestPickerOpen)}>
+            <span className="booking-label">Guests</span>
+            <div className="booking-value" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer", userSelect: "none" }}>
+              <span>{bookingRooms} {bookingRooms > 1 ? "Rooms" : "Room"} · {bookingAdults} {bookingAdults > 1 ? "Adults" : "Adult"}{bookingChildren > 0 ? ` · ${bookingChildren} Child` : ""}</span>
+              <span style={{ fontSize: "9px", color: "var(--gold2)", marginLeft: "8px" }}>▼</span>
+            </div>
+
+            {guestPickerOpen && (
+              <div className="guest-popover" onClick={e => e.stopPropagation()}>
+                <div style={{ fontFamily: "var(--font-sans)", fontSize: "10px", fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase", color: "var(--gold2)", paddingBottom: "6px", borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
+                  Rooms &amp; Guests
+                </div>
+
+                <div className="guest-row">
+                  <div>
+                    <div className="guest-row-label">Rooms</div>
+                    <div className="guest-row-sub">Max 4 suites</div>
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    <button type="button" className="guest-counter-btn" disabled={bookingRooms <= 1} onClick={() => setBookingRooms(r => Math.max(1, r - 1))}>−</button>
+                    <span className="guest-counter-val">{bookingRooms}</span>
+                    <button type="button" className="guest-counter-btn" disabled={bookingRooms >= 4} onClick={() => setBookingRooms(r => Math.min(4, r + 1))}>+</button>
+                  </div>
+                </div>
+
+                <div className="guest-row">
+                  <div>
+                    <div className="guest-row-label">Adults</div>
+                    <div className="guest-row-sub">Ages 12+</div>
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    <button type="button" className="guest-counter-btn" disabled={bookingAdults <= 1} onClick={() => setBookingAdults(a => Math.max(1, a - 1))}>−</button>
+                    <span className="guest-counter-val">{bookingAdults}</span>
+                    <button type="button" className="guest-counter-btn" disabled={bookingAdults >= 10} onClick={() => setBookingAdults(a => Math.min(10, a + 1))}>+</button>
+                  </div>
+                </div>
+
+                <div className="guest-row">
+                  <div>
+                    <div className="guest-row-label">Children</div>
+                    <div className="guest-row-sub">Ages 0–11</div>
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    <button type="button" className="guest-counter-btn" disabled={bookingChildren <= 0} onClick={() => setBookingChildren(c => Math.max(0, c - 1))}>−</button>
+                    <span className="guest-counter-val">{bookingChildren}</span>
+                    <button type="button" className="guest-counter-btn" disabled={bookingChildren >= 6} onClick={() => setBookingChildren(c => Math.min(6, c + 1))}>+</button>
+                  </div>
+                </div>
+
                 <button
-                  onClick={() => setActiveStage((prev) => (prev > 0 ? prev - 1 : 3))}
-                  className="btn-outline-gold text-xs py-2 px-4"
+                  type="button"
+                  className="btn-primary"
+                  style={{ width: "100%", justifyContent: "center", fontSize: "10px", padding: "8px" }}
+                  onClick={() => setGuestPickerOpen(false)}
                 >
-                  ← Previous Stage
-                </button>
-                <button
-                  onClick={() => setActiveStage((prev) => (prev < 3 ? prev + 1 : 0))}
-                  className="btn-gold-glow text-xs py-2 px-4"
-                >
-                  Next Stage →
+                  Done
                 </button>
               </div>
-            </div>
+            )}
           </div>
-        </div>
-      </section>
 
-      {/* ==========================================================================
-          SECTION 4: 3D DIGITAL TWIN & SPLINE MODEL
-          ========================================================================== */}
-      <section id="model3d" className="relative py-32 px-6 z-10 bg-pine-dark/90 backdrop-blur-md border-t border-border/40">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center max-w-3xl mx-auto mb-12">
-            <div className="eyebrow-line mb-4">Real-Time 3D Digital Twin</div>
-            <h2 className="font-serif text-4xl md:text-6xl font-normal leading-tight mb-4">
-              Explore the 3D Architecture
-            </h2>
-            <p className="text-cream/75 text-base">
-              Interact with the full three-dimensional spatial blueprint. Inspect the 4 crimson red roof gables, cream stone facade, curved veranda suites, and second-level sun terrace in 360 degrees.
+          <button
+            className="btn-primary"
+            onClick={() => setReserve(true)}
+            style={{ flexShrink: 0 }}
+          >
+            Check Availability
+          </button>
+        </div>
+      </div>
+
+      {/* ── THE HOMESTAY (ROOMS, NATURE & HOSPITALITY) ───────────────── */}
+      <section id="homestay" style={{ background: "var(--offwhite)", padding: "6rem 2rem" }}>
+        <div style={{ maxWidth: "var(--max-w)", margin: "0 auto" }}>
+          <div style={{ textAlign: "center", marginBottom: "3.5rem" }}>
+            <div className="section-eyebrow" style={{ justifyContent: "center" }}>The Sanctuary Experience</div>
+            <h2 className="section-title">The Hill Serenity Homestay</h2>
+            <span className="gold-rule gold-rule-center"></span>
+            <p className="section-body" style={{ maxWidth: "620px", margin: "0 auto" }}>
+              A handcrafted three-storey sanctuary where alpine architecture, untouched Himalayan wilderness, and soulful Kumaoni hospitality unite.
             </p>
           </div>
 
-          <Interactive3DViewer />
-
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
-            <div className="glass-panel-subtle p-4 rounded text-center">
-              <span className="block text-gold font-serif text-xl">4 Alpine Gables</span>
-              <span className="text-[11px] uppercase tracking-wider text-cream/60">Terracotta Red Pitch</span>
-            </div>
-            <div className="glass-panel-subtle p-4 rounded text-center">
-              <span className="block text-gold font-serif text-xl">Sun Terrace</span>
-              <span className="text-[11px] uppercase tracking-wider text-cream/60">Outdoor Cafe Deck</span>
-            </div>
-            <div className="glass-panel-subtle p-4 rounded text-center">
-              <span className="block text-gold font-serif text-xl">Covered Portico</span>
-              <span className="text-[11px] uppercase tracking-wider text-cream/60">Protected Ground Parking</span>
-            </div>
-            <div className="glass-panel-subtle p-4 rounded text-center">
-              <span className="block text-gold font-serif text-xl">Curved Balconies</span>
-              <span className="text-[11px] uppercase tracking-wider text-cream/60">Panoramic Valley Framing</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ==========================================================================
-          SECTION 5: PROJECTS GALLERY
-          ========================================================================== */}
-      <section id="projects" className="relative py-32 px-6 z-10 bg-obsidian/95 border-t border-border/40">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
-            <div>
-              <div className="eyebrow-line mb-4">Selected Portfolio</div>
-              <h2 className="font-serif text-4xl md:text-6xl font-normal leading-tight">
-                Himalayan Masterpieces
-              </h2>
-            </div>
-            <p className="text-cream/70 max-w-md text-sm">
-              Each residential commission represents a custom synthesis of indigenous hill geology, sustainable timber engineering, and quiet five-star luxury.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {PROJECTS.map((proj) => (
-              <div
-                key={proj.id}
-                className="group relative rounded-sm overflow-hidden border border-border/50 bg-pine-dark/60 cursor-pointer transition-all duration-500 hover:border-gold hover:shadow-2xl"
-                onClick={() => setSelectedProject(proj)}
-              >
-                <div className="h-[360px] overflow-hidden">
-                  <img
-                    src={proj.image}
-                    alt={proj.title}
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                  />
-                </div>
-                <div className="p-8">
-                  <div className="flex justify-between items-start mb-2">
-                    <span className="text-xs uppercase tracking-widest text-gold font-semibold">
-                      {proj.category}
-                    </span>
-                    <span className="text-xs font-mono text-cream/50">
-                      {proj.specs}
-                    </span>
+          <div className="card-grid-3">
+            {HOMESTAY_PILLARS.map(d => (
+              <div key={d.id} className="dest-card" onClick={() => setSelDest(d)}>
+                <div className="dest-card-img-wrap">
+                  <img src={d.img} alt={d.name} />
+                  <div style={{ position: "absolute", top: "1rem", left: "1rem" }}>
+                    <span className="badge">{d.tag}</span>
                   </div>
-                  <h3 className="font-serif text-2xl md:text-3xl text-cream group-hover:text-gold transition">
-                    {proj.title}
-                  </h3>
-                  <p className="text-cream/70 text-sm mt-2 leading-relaxed">
-                    {proj.description}
-                  </p>
-                  <div className="mt-6 flex items-center gap-2 text-xs uppercase tracking-wider text-gold font-bold">
-                    <span>Inspect Case Study</span>
-                    <span>→</span>
+                </div>
+                <div className="dest-card-body">
+                  <div className="dest-card-tag">{d.location}</div>
+                  <div className="dest-card-name">{d.name}</div>
+                  <div className="dest-card-desc">{d.desc}</div>
+                  <span className="text-link">{d.actionText || "Explore Details →"}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── NEARBY ATTRACTIONS & EXCURSIONS ──────────────────────────── */}
+      <section id="nearby" className="nearby-section" style={{ position: "relative", padding: "6rem 2rem", overflow: "hidden", background: "var(--navy)" }}>
+        {/* Background Collage Layer */}
+        <div style={{
+          position: "absolute",
+          inset: 0,
+          backgroundImage: "url('assets/nearby-attractions-collage.jpg')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+          opacity: 0.45,
+          zIndex: 0
+        }}></div>
+        <div style={{
+          position: "absolute",
+          inset: 0,
+          background: "linear-gradient(to bottom, rgba(14,22,32,0.88) 0%, rgba(14,22,32,0.62) 30%, rgba(14,22,32,0.62) 70%, rgba(14,22,32,0.92) 100%)",
+          zIndex: 0
+        }}></div>
+
+        <div style={{ maxWidth: "var(--max-w)", margin: "0 auto", position: "relative", zIndex: 1 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: "3rem", flexWrap: "wrap", gap: "1.5rem" }}>
+            <div>
+              <div className="section-eyebrow" style={{ color: "var(--gold2)" }}>Nearby Excursions &amp; Pilgrimages</div>
+              <h2 className="section-title section-title-light">Places to Visit Around <em style={{ color: "var(--gold2)" }}>The Sanctuary</em></h2>
+              <span className="gold-rule"></span>
+              <p className="section-body section-body-light" style={{ maxWidth: "640px" }}>
+                Centrally located in Chafi, Nainital, The Hill Serenity offers quick access to sacred temples, pristine emerald lakes, and panoramic Himalayan ridges.
+              </p>
+            </div>
+            <button className="btn-primary" onClick={() => setReserve(true)} style={{ alignSelf: "flex-end", fontSize: "10.5px", padding: "11px 22px" }}>
+              Plan Excursion with Concierge →
+            </button>
+          </div>
+
+          <div className="card-grid-4">
+            {NEARBY_ATTRACTIONS.map((loc, i) => (
+              <div key={i} className="offer-card" onClick={() => setReserve(true)} style={{position:"relative",cursor:"pointer"}}>
+                <div className="offer-card-img-wrap" style={{position:"relative"}}>
+                  <img src={loc.img} alt={loc.name} />
+                  <div style={{
+                    position:"absolute", top:"0.75rem", left:"0.75rem",
+                    background:"var(--navy)", color:"var(--gold2)",
+                    fontFamily:"var(--font-sans)", fontSize:"9px", fontWeight:700,
+                    letterSpacing:"0.16em", textTransform:"uppercase", padding:"4px 9px",
+                    display:"flex", alignItems:"center", gap:"6px",
+                    boxShadow:"0 2px 10px rgba(0,0,0,0.3)"
+                  }}>
+                    <span>📍 {loc.distance}</span>
+                    <span style={{color:"rgba(255,255,255,0.35)"}}>|</span>
+                    <span>⏱ {loc.time}</span>
+                  </div>
+                </div>
+
+                <div className="offer-card-body" style={{padding:"1.5rem"}}>
+                  <div style={{fontFamily:"var(--font-sans)",fontSize:"9.5px",fontWeight:600,letterSpacing:"0.18em",textTransform:"uppercase",color:"var(--muted)",marginBottom:"0.35rem"}}>
+                    {loc.category}
+                  </div>
+                  <div className="offer-card-title" style={{fontSize:"1.12rem",lineHeight:1.3,marginBottom:"0.6rem"}}>
+                    {loc.name}
+                  </div>
+                  <div className="offer-card-desc" style={{fontSize:"12px",lineHeight:1.75,marginBottom:"1rem"}}>
+                    {loc.desc}
+                  </div>
+                  <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",paddingTop:"0.75rem",borderTop:"1px solid var(--border)"}}>
+                    <span style={{fontFamily:"var(--font-sans)",fontSize:"10px",color:"var(--gold3)",fontWeight:600,letterSpacing:"0.06em"}}>
+                      ★ {loc.highlight}
+                    </span>
+                    <span className="text-link text-link-gold" style={{fontSize:"10px"}}>Plan Visit →</span>
                   </div>
                 </div>
               </div>
@@ -1040,229 +850,452 @@ function ArchitectureApp() {
         </div>
       </section>
 
-      {/* ==========================================================================
-          SECTION 6: ABOUT US
-          ========================================================================== */}
-      <section id="about" className="relative py-32 px-6 z-10 bg-pine-dark/85 backdrop-blur-md border-t border-border/40">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
-            <div className="lg:col-span-6">
-              <div className="eyebrow-line mb-4">Pedigree & Heritage</div>
-              <h2 className="font-serif text-4xl md:text-6xl font-normal leading-tight mb-8">
-                Master Builders of the Kumaon Hills.
-              </h2>
-              <p className="text-cream/80 leading-relaxed text-base mb-6">
-                Founded with a deep reverence for Uttarakhand's topography, our design-build studio fuses classical vernacular traditions with contemporary architectural precision. We build with stone, wood, slate, and glass to create heirloom residences that endure for generations.
-              </p>
-              <p className="text-cream/80 leading-relaxed text-base mb-8">
-                Operating close to Kainchi Dham, we honor Maharaj-ji's teaching of harmony with nature. We maintain a zero single-use plastic standard, source over 80% of building materials within 40 km, and employ local village artisans.
-              </p>
-
-              <div className="flex gap-4">
-                <a href="#contact" className="btn-gold-glow">Commission a Project</a>
-                <a href="https://maps.app.goo.gl/3wiknEp5PKnJ9Vbb9" target="_blank" rel="noopener noreferrer" className="btn-outline-gold">
-                  Locate on Google Maps ↗
-                </a>
-              </div>
-            </div>
-
-            <div className="lg:col-span-6 grid grid-cols-2 gap-4">
-              <div className="rounded border border-border overflow-hidden h-72">
-                <img
-                  src="assets/seasons-collage-4k.jpg"
-                  alt="4 Seasons of The Hill Serenity"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <div className="rounded border border-border overflow-hidden h-72 mt-8">
-                <img
-                  src="assets/hero-the-hill-serenity-1080p.jpg"
-                  alt="Official Elevation"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ==========================================================================
-          SECTION 7: CONTACT & COMMISSION FORM
-          ========================================================================== */}
-      <section id="contact" className="relative py-32 px-6 z-10 bg-obsidian">
-        <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-16">
-            <div className="eyebrow-line mb-4">Start Your Commission</div>
-            <h2 className="font-serif text-4xl md:text-6xl font-normal leading-tight mb-4">
-              Begin Your Architectural Journey
-            </h2>
-            <p className="text-cream/70 text-base max-w-xl mx-auto">
-              Whether you are seeking early founding guest reservations or commissioning a private mountain residence, our studio is at your service.
-            </p>
-          </div>
-
-          <div className="glass-panel p-8 md:p-14 rounded-sm border border-border">
-            {formSubmitted ? (
-              <div className="text-center py-12">
-                <div className="text-4xl mb-4">✨</div>
-                <h3 className="font-serif text-3xl text-cream mb-2">Enquiry Sent with Honor</h3>
-                <p className="text-cream/80 text-sm max-w-md mx-auto mb-6">
-                  Your architectural consultation request has been forwarded directly to our principal architects. Opening WhatsApp to connect with our concierge...
-                </p>
-                <button
-                  onClick={() => setFormSubmitted(false)}
-                  className="btn-outline-gold text-xs"
-                >
-                  Send Another Enquiry
-                </button>
-              </div>
-            ) : (
-              <form onSubmit={handleEnquiry} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-xs uppercase tracking-wider text-gold mb-2 font-semibold">
-                    Your Full Name *
-                  </label>
-                  <input
-                    type="text"
-                    name="name"
-                    required
-                    placeholder="Vikramaditya Sharma"
-                    className="w-full bg-obsidian/80 border border-border/70 rounded-sm px-4 py-3 text-cream text-sm focus:border-gold outline-none transition"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs uppercase tracking-wider text-gold mb-2 font-semibold">
-                    Phone / WhatsApp Number *
-                  </label>
-                  <input
-                    type="tel"
-                    name="phone"
-                    required
-                    placeholder="+91 98765 43210"
-                    className="w-full bg-obsidian/80 border border-border/70 rounded-sm px-4 py-3 text-cream text-sm focus:border-gold outline-none transition"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs uppercase tracking-wider text-gold mb-2 font-semibold">
-                    Email Address *
-                  </label>
-                  <input
-                    type="email"
-                    name="email"
-                    required
-                    placeholder="you@domain.com"
-                    className="w-full bg-obsidian/80 border border-border/70 rounded-sm px-4 py-3 text-cream text-sm focus:border-gold outline-none transition"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs uppercase tracking-wider text-gold mb-2 font-semibold">
-                    Interest / Service *
-                  </label>
-                  <select
-                    name="service"
-                    className="w-full bg-obsidian/80 border border-border/70 rounded-sm px-4 py-3 text-cream text-sm focus:border-gold outline-none transition"
-                  >
-                    <option value="Boutique Stay Reservation at The Hill Serenity">
-                      Boutique Stay Reservation at The Hill Serenity
-                    </option>
-                    <option value="Bespoke Architectural Mountain Commission">
-                      Bespoke Architectural Mountain Commission
-                    </option>
-                    <option value="Kainchi Dham Pilgrimage VIP Package">
-                      Kainchi Dham Pilgrimage VIP Package
-                    </option>
-                    <option value="Property Investor / Buyout Enquiry">
-                      Property Investor / Buyout Enquiry
-                    </option>
-                  </select>
-                </div>
-
-                <div className="md:col-span-2">
-                  <label className="block text-xs uppercase tracking-wider text-gold mb-2 font-semibold">
-                    Vision & Project Notes
-                  </label>
-                  <textarea
-                    name="message"
-                    rows="4"
-                    placeholder="Tell us about your proposed timeline, preferred suite, or mountain residence vision..."
-                    className="w-full bg-obsidian/80 border border-border/70 rounded-sm px-4 py-3 text-cream text-sm focus:border-gold outline-none transition"
-                  ></textarea>
-                </div>
-
-                <div className="md:col-span-2 flex flex-col md:flex-row items-center justify-between gap-4 pt-4 border-t border-border/40">
-                  <button type="submit" className="btn-gold-glow w-full md:w-auto">
-                    Submit Enquiry & Connect on WhatsApp 💬
-                  </button>
-                  <span className="text-xs text-cream/50">
-                    🔒 Strict Confidentiality • Direct Principal Architect Response
-                  </span>
-                </div>
-              </form>
-            )}
-          </div>
-        </div>
-      </section>
-
-      {/* FOOTER */}
-      <footer className="border-t border-border/30 bg-obsidian py-12 px-6 relative z-10 text-xs text-cream/60">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-3">
-            <span className="font-serif text-lg tracking-widest text-cream">THE HILL SERENITY</span>
-            <span>•</span>
-            <span>South Gola Range, Chafi, Nainital, Uttarakhand 263136</span>
-          </div>
+      {/* ── OUR STORY ────────────────────────────────────────────────── */}
+      <section id="our-story" style={{ background: "var(--cream)", padding: "7rem 2rem" }}>
+        <div style={{ maxWidth: "var(--max-w)", margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "6rem", alignItems: "center" }}>
           <div>
-            © {new Date().getFullYear()} The Hill Serenity Architecture. Crafted with React, GSAP, Spline 3D & Kling AI.
+            <div className="section-eyebrow">Heritage &amp; Pedigree</div>
+            <h2 className="section-title">Master Builders of <em>the Kumaon Hills.</em></h2>
+            <span className="gold-rule"></span>
+            <p className="section-body" style={{ marginBottom: "1.25rem" }}>
+              Founded with deep reverence for Uttarakhand's topography, our design-build studio fuses classical vernacular traditions with contemporary architectural precision. We build with stone, wood, slate and glass — heirloom residences that endure for generations.
+            </p>
+            <p className="section-body" style={{ marginBottom: "2.5rem" }}>
+              Operating near Kainchi Dham, we honour Maharaj-ji's teaching of harmony with nature. Zero single-use plastics. Over 80% of materials sourced within 40 km. All our artisans are village craftsmen of the Kumaon hills.
+            </p>
+
+            <div style={{ paddingTop: "1.5rem", borderTop: "1px solid var(--border)", marginTop: "1rem" }}>
+              <div style={{ fontFamily: "var(--font-sans)", fontSize: "10px", fontWeight: 700, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--gold3)", marginBottom: "0.85rem" }}>
+                Nearby Locations &amp; Distances from Hotel
+              </div>
+              <div style={{ overflowX: "auto" }}>
+                <table style={{ width: "100%", borderCollapse: "collapse", fontFamily: "var(--font-sans)", fontSize: "11px", textAlign: "left" }}>
+                  <thead>
+                    <tr style={{ borderBottom: "1.5px solid var(--border)", color: "var(--navy)", fontSize: "9.5px", letterSpacing: "0.14em", textTransform: "uppercase", fontWeight: 700 }}>
+                      <th style={{ padding: "6px 8px 6px 0" }}>Destination</th>
+                      <th style={{ padding: "6px 8px", whiteSpace: "nowrap" }}>Distance</th>
+                      <th style={{ padding: "6px 8px", whiteSpace: "nowrap" }}>Time (-5m)</th>
+                      <th style={{ padding: "6px 0 6px 8px" }}>Highlights</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[
+                      { dest: "Kainchi Dham (Neem Karoli Baba Ashram)", dist: "12 km", time: "25 mins", hl: "Sacred river valley, daily satsang & aarti" },
+                      { dest: "Bhimtal Lake & Island Aquarium", dist: "8 km", time: "15 mins", hl: "Victorian dam, kayaking & center-island cafe" },
+                      { dest: "Sattal (Seven Interconnected Lakes)", dist: "10 km", time: "20 mins", hl: "Oak & pine forests, rare birdwatching trails" },
+                      { dest: "Ghorakhal Golu Devta Mandir", dist: "11 km", time: "20 mins", hl: "Historic brass bell temple overlooking tea gardens" },
+                      { dest: "Nainital (Naini Lake & Mall Road)", dist: "18 km", time: "35 mins", hl: "Naini Lake, Naina Devi Mandir & ropeway" },
+                      { dest: "Naukuchiatal (Nine-Cornered Lake)", dist: "12 km", time: "20 mins", hl: "Deepest lake in region, tandem paragliding" },
+                      { dest: "Mukteshwar Ridge & Chauli Ki Jali", dist: "28 km", time: "55 mins", hl: "7,500 ft cliff with 180° Trishul & Nanda Devi snow peaks" },
+                      { dest: "Chafi Kalsa River Trail & Cascades", dist: "1.2 km", time: "10 mins", hl: "Natural swimming pools right from hotel doorstep" },
+                    ].map((row, idx) => (
+                      <tr key={idx} style={{ borderBottom: "1px solid rgba(226,221,214,0.6)" }}>
+                        <td style={{ padding: "7px 8px 7px 0", color: "var(--navy)", fontWeight: 600 }}>{row.dest}</td>
+                        <td style={{ padding: "7px 8px", color: "var(--gold3)", fontWeight: 700, whiteSpace: "nowrap" }}>{row.dist}</td>
+                        <td style={{ padding: "7px 8px", color: "var(--navy)", whiteSpace: "nowrap" }}>{row.time}</td>
+                        <td style={{ padding: "7px 0 7px 8px", color: "var(--text-light)", fontSize: "10.5px" }}>{row.hl}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
+
+          <div style={{ position: "relative" }}>
+            <div style={{ overflow: "hidden", borderTop: "2px solid var(--gold)" }}>
+              <img src="assets/the-hill-serenity-facade.jpg" alt="The Hill Serenity Facade" className="vision-img" style={{ width: "100%", height: "540px", objectFit: "cover", display: "block" }} />
+            </div>
+            <div style={{ position: "absolute", bottom: "1rem", right: "1rem", background: "var(--navy)", color: "var(--gold2)", fontFamily: "var(--font-sans)", fontSize: "9.5px", fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase", padding: "6px 14px" }}>
+              Official Architectural Facade
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── CONTACT ──────────────────────────────────────────────────── */}
+      <section id="contact" style={{ background: "var(--cream)", padding: "6rem 2rem" }}>
+        <div style={{ maxWidth: "860px", margin: "0 auto", textAlign: "center" }}>
+          <div className="section-eyebrow" style={{ justifyContent: "center" }}>Get in Touch</div>
+          <h2 className="section-title">Begin Your <em>Architectural Journey</em></h2>
+          <span className="gold-rule gold-rule-center"></span>
+          <p className="section-body" style={{ maxWidth: "480px", margin: "0 auto 2.5rem" }}>
+            For reservations, bespoke architectural commissions or partnership enquiries, our team responds within 24 hours.
+          </p>
+          <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
+            <button className="btn-primary" onClick={() => setReserve(true)}>Reserve a Stay</button>
+            <a href="mailto:namaste@thehillserenity.com" className="btn-join">Email Us</a>
+            <a href="https://maps.app.goo.gl/3wiknEp5PKnJ9Vbb9" target="_blank" rel="noopener noreferrer" className="btn-join">Find Us on Maps ↗</a>
+          </div>
+        </div>
+      </section>
+
+      {/* ── FOOTER ───────────────────────────────────────────────────── */}
+      <footer className="ths-footer">
+        <div className="footer-top">
+          <div>
+            <div className="footer-brand-name">The Hill Serenity</div>
+            <div style={{ fontFamily: "var(--font-sans)", fontSize: "10px", letterSpacing: "0.2em", textTransform: "uppercase", color: "var(--gold2)", marginBottom: "0.75rem", fontWeight: 600 }}>Architecture &amp; Sanctuary</div>
+            <p style={{ fontSize: "12.5px", color: "rgba(255,255,255,0.45)", lineHeight: 1.9, maxWidth: "260px" }}>
+              South Gola Range, Village Chafi, Near Kalsa River Bridge, Bhowali Tehsil, Nainital, Uttarakhand 263136
+            </p>
+            <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.35)", marginTop: "0.75rem" }}>✉ namaste@thehillserenity.com</p>
+          </div>
+
+          {[
+            { title:"Explore", links:[["#homestay","The Homestay"],["#nearby","Nearby Places"],["#our-story","Our Story"],["#contact","Contact Us"]] },
+            { title:"Stay", links:[["#","Boutique Suites"],["#","Seasonal Packages"],["#","Pilgrimage Stays"],["#","Private Dining"],["#","Wellness Retreats"]] },
+            { title:"Connect", links:[["#","Membership"],["#","Press & Media"],["#contact","Contact Us"],["https://maps.app.goo.gl/3wiknEp5PKnJ9Vbb9","Google Maps ↗"]] },
+          ].map(col => (
+            <div key={col.title}>
+              <div className="footer-col-title">{col.title}</div>
+              {col.links.map(([href, label]) => (
+                <a key={label} href={href} className="footer-link" target={href.startsWith("http") ? "_blank" : undefined} rel={href.startsWith("http") ? "noopener noreferrer" : undefined}>{label}</a>
+              ))}
+            </div>
+          ))}
+        </div>
+
+        <div className="footer-bottom">
+          <span>© {new Date().getFullYear()} The Hill Serenity Architecture. All rights reserved.</span>
+          <span style={{ color: "rgba(255,255,255,0.25)" }}>Crafted with React · GSAP · Three.js</span>
         </div>
       </footer>
 
-      {/* CASE STUDY MODAL */}
-      {selectedProject && (
-        <div
-          className="fixed inset-0 z-50 bg-obsidian/90 backdrop-blur-xl flex items-center justify-center p-6"
-          onClick={() => setSelectedProject(null)}
-        >
-          <div
-            className="glass-panel max-w-3xl w-full p-8 md:p-12 rounded relative border border-gold"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              onClick={() => setSelectedProject(null)}
-              className="absolute top-6 right-6 text-xl text-cream/70 hover:text-white"
-            >
-              ✕
-            </button>
-            <span className="text-xs uppercase tracking-widest text-gold font-bold block mb-1">
-              {selectedProject.category} • {selectedProject.location}
-            </span>
-            <h3 className="font-serif text-3xl text-cream mb-4">{selectedProject.title}</h3>
-            <img
-              src={selectedProject.image}
-              alt={selectedProject.title}
-              className="w-full h-80 object-cover rounded mb-6 border border-border"
-            />
-            <p className="text-cream/80 text-sm leading-relaxed mb-6">{selectedProject.description}</p>
-            <div className="flex gap-4">
-              <a href="#contact" onClick={() => setSelectedProject(null)} className="btn-gold-glow text-xs">
-                Inquire on this Architecture
-              </a>
-              <button onClick={() => setSelectedProject(null)} className="btn-outline-gold text-xs">
-                Close Inspector
-              </button>
+      {/* ── RESERVE MODAL ────────────────────────────────────────────── */}
+      {reserveOpen && (
+        <div className="modal-backdrop" onClick={() => { setReserve(false); setSubmitted(false); }}>
+          <div className="modal-box" onClick={e => e.stopPropagation()}>
+            <button className="modal-close" onClick={() => { setReserve(false); setSubmitted(false); }}>✕</button>
+
+            <div className="modal-header">
+              <div style={{ fontFamily: "var(--font-sans)", fontSize: "10px", fontWeight: 700, letterSpacing: "0.26em", textTransform: "uppercase", color: "var(--gold3)", marginBottom: "0.4rem" }}>
+                The Hill Serenity · Chafi, Nainital
+              </div>
+              <h2 style={{ fontFamily: "var(--font-serif)", fontSize: "1.75rem", color: "var(--navy)", fontWeight: 400 }}>Reserve a Stay</h2>
+              <span className="gold-rule"></span>
+            </div>
+
+            <div className="modal-body">
+              {submitted ? (
+                <div style={{ textAlign: "center", padding: "2.5rem 0" }}>
+                  <div style={{ fontSize: "2rem", marginBottom: "1rem" }}>✦</div>
+                  <h3 style={{ fontFamily: "var(--font-serif)", fontSize: "1.75rem", color: "var(--navy)", marginBottom: "0.75rem" }}>Reservation Received</h3>
+                  <p style={{ fontFamily: "var(--font-sans)", fontSize: "13.5px", color: "var(--text-light)", lineHeight: 1.8, maxWidth: "360px", margin: "0 auto 2rem" }}>
+                    Your request has been forwarded to our sanctuary team. Opening WhatsApp to connect with your dedicated concierge...
+                  </p>
+                  <button className="btn-primary" onClick={() => setSubmitted(false)}>Submit Another Enquiry</button>
+                </div>
+              ) : (
+                <form onSubmit={handleReserve}>
+                  <div style={{ background: "rgba(181, 146, 44, 0.1)", border: "1px solid var(--gold)", padding: "10px 14px", marginBottom: "1.25rem", borderRadius: "2px", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "6px" }}>
+                    <div>
+                      <div style={{ fontFamily: "var(--font-sans)", fontSize: "10px", fontWeight: 700, color: "var(--gold3)", textTransform: "uppercase", letterSpacing: "0.14em" }}>Selected Itinerary</div>
+                      <div style={{ fontFamily: "var(--font-sans)", fontSize: "12.5px", color: "var(--navy)", fontWeight: 500 }}>{bookingCheckin} → {bookingCheckout} · {bookingRooms} Room · {bookingAdults} Adults{bookingChildren > 0 ? `, ${bookingChildren} Children` : ""}</div>
+                    </div>
+                    <span style={{ fontFamily: "var(--font-sans)", fontSize: "10.5px", fontWeight: 700, color: "#1B5E20", background: "rgba(76, 175, 80, 0.15)", padding: "3px 8px", borderRadius: "2px" }}>✓ Best Direct Rate Available</span>
+                  </div>
+
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.25rem", marginBottom: "1.25rem" }}>
+                    {/* Full Name */}
+                    <div>
+                      <label className="form-label">Full Name *</label>
+                      <input type="text" name="name" required placeholder="Your name" className="form-input" />
+                    </div>
+
+                    {/* WhatsApp / Phone with Verification */}
+                    <div>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" }}>
+                        <label className="form-label" style={{ margin: 0 }}>WhatsApp / Phone *</label>
+                        {phoneVerified ? (
+                          <span className="verify-badge-success">✓ WhatsApp Verified</span>
+                        ) : (
+                          <button type="button" className="btn-verify-action" onClick={sendPhoneOtp}>
+                            Verify Number
+                          </button>
+                        )}
+                      </div>
+                      <input
+                        type="tel"
+                        name="phone"
+                        required
+                        value={phoneInput}
+                        onChange={e => {
+                          setPhoneInput(e.target.value);
+                          setPhoneVerified(false);
+                          setVerifyingPhone(false);
+                        }}
+                        placeholder="Enter your phone number"
+                        className={`form-input ${phoneVerified ? "input-verified" : ""}`}
+                      />
+
+                      {/* Interactive Verification Drawer */}
+                      {verifyingPhone && !phoneVerified && (
+                        <div className="verification-drawer">
+                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" }}>
+                            <span style={{ fontSize: "11px", color: "var(--navy)", fontWeight: 600 }}>WhatsApp Verification Code:</span>
+                            <span className="otp-pill">{simulatedOtp}</span>
+                          </div>
+                          <div style={{ display: "flex", gap: "8px" }}>
+                            <input
+                              type="text"
+                              maxLength="4"
+                              placeholder="4-digit code"
+                              value={otpCode}
+                              onChange={e => setOtpCode(e.target.value)}
+                              style={{ width: "110px", padding: "6px 8px", fontSize: "12px", border: "1px solid var(--gold)", textAlign: "center", letterSpacing: "0.2em", fontWeight: 700 }}
+                            />
+                            <button
+                              type="button"
+                              className="btn-primary"
+                              style={{ fontSize: "10px", padding: "6px 12px" }}
+                              onClick={() => confirmPhoneOtp()}
+                            >
+                              Confirm
+                            </button>
+                            <button
+                              type="button"
+                              className="btn-join"
+                              style={{ fontSize: "10px", padding: "6px 10px" }}
+                              onClick={() => confirmPhoneOtp(simulatedOtp)}
+                            >
+                              Auto-Verify
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Email Address with Gmail Verification */}
+                    <div>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" }}>
+                        <label className="form-label" style={{ margin: 0 }}>Email Address *</label>
+                        {emailVerified ? (
+                          <span className="verify-badge-success">✓ Gmail Verified</span>
+                        ) : (
+                          <button type="button" className="btn-verify-google" onClick={verifyWithGmail}>
+                            ⚡ Verify with Gmail
+                          </button>
+                        )}
+                      </div>
+                      <input
+                        type="email"
+                        name="email"
+                        required
+                        value={emailInput}
+                        onChange={e => {
+                          setEmailInput(e.target.value);
+                          setEmailVerified(false);
+                        }}
+                        placeholder="you@email.com"
+                        className={`form-input ${emailVerified ? "input-verified" : ""}`}
+                      />
+                    </div>
+
+                    {/* Quick Verification Hint */}
+                    <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", background: "rgba(181,146,44,0.06)", border: "1px dashed var(--gold)", padding: "10px 14px", borderRadius: "3px" }}>
+                      <div style={{ fontSize: "11px", fontWeight: 600, color: "var(--navy)", marginBottom: "3px" }}>Contact Verification Required</div>
+                      <div style={{ fontSize: "10.5px", color: "var(--muted)", lineHeight: 1.4 }}>
+                        {phoneVerified || emailVerified ? (
+                          <span style={{ color: "#1B5E20", fontWeight: 600 }}>✓ Contact verified! You are ready to reserve.</span>
+                        ) : (
+                          <span>Verify either your WhatsApp or Gmail to complete reservation.</span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Dedicated Room & Guest Selector (Max 3 people per room) */}
+                    <div className="room-guest-selector-card" style={{ gridColumn: "span 2" }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px", flexWrap: "wrap", gap: "8px" }}>
+                        <div style={{ fontFamily: "var(--font-sans)", fontSize: "11px", fontWeight: 700, letterSpacing: "0.15em", textTransform: "uppercase", color: "var(--gold3)" }}>
+                          Rooms &amp; Guests Allocation
+                        </div>
+                        <span className="capacity-pill-highlight">
+                          Rule: Max 3 people per room
+                        </span>
+                      </div>
+
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+                        {/* Number of Rooms */}
+                        <div className="selector-control-box">
+                          <div>
+                            <div className="selector-control-label">Number of Rooms</div>
+                            <div className="selector-control-sub">{modalRooms} Suite{modalRooms > 1 ? "s" : ""} (Max {modalRooms * 3} guests)</div>
+                          </div>
+                          <div className="counter-btn-group">
+                            <button
+                              type="button"
+                              className="counter-action-btn"
+                              disabled={modalRooms <= 1}
+                              onClick={() => handleModalRooms(modalRooms - 1)}
+                            >
+                              −
+                            </button>
+                            <span className="counter-action-value">{modalRooms}</span>
+                            <button
+                              type="button"
+                              className="counter-action-btn"
+                              disabled={modalRooms >= 4}
+                              onClick={() => handleModalRooms(modalRooms + 1)}
+                            >
+                              +
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Number of Guests */}
+                        <div className="selector-control-box">
+                          <div>
+                            <div className="selector-control-label">Number of Guests</div>
+                            <div className="selector-control-sub">In 1 room, only 3 can stay</div>
+                          </div>
+                          <div className="counter-btn-group">
+                            <button
+                              type="button"
+                              className="counter-action-btn"
+                              disabled={modalGuests <= 1}
+                              onClick={() => handleModalGuests(modalGuests - 1)}
+                            >
+                              −
+                            </button>
+                            <span className="counter-action-value">{modalGuests}</span>
+                            <button
+                              type="button"
+                              className="counter-action-btn"
+                              disabled={modalGuests >= 12}
+                              onClick={() => handleModalGuests(modalGuests + 1)}
+                            >
+                              +
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+
+                      {capacityNotice && (
+                        <div className="capacity-notice-box">
+                          <span>ⓘ</span> {capacityNotice}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Dates */}
+                    <div>
+                      <label className="form-label">Check-in Date</label>
+                      <input type="date" name="checkin" defaultValue={bookingCheckin} className="form-input" />
+                    </div>
+                    <div>
+                      <label className="form-label">Check-out Date</label>
+                      <input type="date" name="checkout" defaultValue={bookingCheckout} className="form-input" />
+                    </div>
+                  </div>
+
+                  <div style={{ marginBottom: "1.25rem" }}>
+                    <label className="form-label">Interest / Package</label>
+                    <select name="interest" defaultValue={bookingDestination} className="form-input" style={{ appearance: "none", WebkitAppearance: "none" }}>
+                      <option value="Homestay — The Hill Serenity, Chafi">Homestay — The Hill Serenity, Chafi</option>
+                      <option value="Cedar Veranda Homestay Suite (270° Mountain View)">Cedar Veranda Homestay Suite</option>
+                      <option value="Valley Sunrise Alpine Dormer Suite">Valley Sunrise Suite</option>
+                      <option value="Entire Homestay Private Buyout (Up to 12 Guests)">Entire Homestay Buyout</option>
+                      <option value="Kainchi Dham Pilgrimage Stay">Kainchi Dham Pilgrimage Stay</option>
+                      <option value="Monsoon Mist Retreat">Monsoon Mist Retreat</option>
+                    </select>
+                  </div>
+
+                  <div style={{ marginBottom: "2rem" }}>
+                    <label className="form-label">Special Requests / Notes</label>
+                    <textarea name="notes" rows="3" placeholder="Preferred suite view, dietary requirements, occasion..." className="form-input" style={{ resize: "vertical" }}></textarea>
+                  </div>
+
+                  {verificationNotice && (
+                    <div className="verification-alert-banner">
+                      <span>⚠️</span>
+                      <div style={{ flex: 1 }}>{verificationNotice}</div>
+                      <button
+                        type="button"
+                        className="btn-join"
+                        style={{ fontSize: "10px", padding: "4px 10px" }}
+                        onClick={() => {
+                          if (phoneInput && phoneInput.replace(/[^0-9]/g, "").length >= 10) {
+                            sendPhoneOtp();
+                          } else {
+                            verifyWithGmail();
+                          }
+                        }}
+                      >
+                        Quick Verify
+                      </button>
+                    </div>
+                  )}
+
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "1rem", paddingTop: "1.5rem", borderTop: "1px solid var(--border)" }}>
+                    <button type="submit" className="btn-primary">Confirm Enquiry via WhatsApp 💬</button>
+                    <span style={{ fontFamily: "var(--font-sans)", fontSize: "11px", color: "var(--muted)", letterSpacing: "0.06em" }}>🔒 Strict privacy · 24-hr response</span>
+                  </div>
+                </form>
+              )}
             </div>
           </div>
         </div>
       )}
-    </div>
+
+      {/* ── MEMBERSHIP MODAL ─────────────────────────────────────────── */}
+      {memberOpen && (
+        <div className="modal-backdrop" onClick={() => setMemberOpen(false)}>
+          <div className="modal-box" style={{ maxWidth: "520px" }} onClick={e => e.stopPropagation()}>
+            <button className="modal-close" onClick={() => setMemberOpen(false)}>✕</button>
+            <div className="modal-header">
+              <div style={{ fontFamily: "var(--font-sans)", fontSize: "10px", fontWeight: 700, letterSpacing: "0.26em", textTransform: "uppercase", color: "var(--gold3)", marginBottom: "0.4rem" }}>
+                Sanctuary Circle
+              </div>
+              <h2 style={{ fontFamily: "var(--font-serif)", fontSize: "1.75rem", color: "var(--navy)", fontWeight: 400 }}>Join / Sign In</h2>
+              <span className="gold-rule"></span>
+            </div>
+            <div className="modal-body">
+              <div style={{ marginBottom: "1.25rem" }}>
+                <label className="form-label">Email Address</label>
+                <input type="email" placeholder="you@email.com" className="form-input" />
+              </div>
+              <div style={{ marginBottom: "2rem" }}>
+                <label className="form-label">Password</label>
+                <input type="password" placeholder="••••••••" className="form-input" />
+              </div>
+              <button className="btn-primary" style={{ width: "100%", justifyContent: "center", marginBottom: "1rem" }}>Sign In</button>
+              <div style={{ textAlign: "center" }}>
+                <span style={{ fontFamily: "var(--font-sans)", fontSize: "12px", color: "var(--muted)" }}>New patron? </span>
+                <span className="text-link" style={{ fontSize: "12px", cursor: "pointer" }}>Create Membership →</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── DESTINATION DETAIL MODAL ──────────────────────────────────── */}
+      {selDest && (
+        <div className="modal-backdrop" onClick={() => setSelDest(null)}>
+          <div className="modal-box" onClick={e => e.stopPropagation()}>
+            <button className="modal-close" onClick={() => setSelDest(null)}>✕</button>
+            <div style={{ height: "320px", overflow: "hidden", borderTop: "2px solid var(--gold)" }}>
+              <img src={selDest.img} alt={selDest.name} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+            </div>
+            <div style={{ padding: "2rem 3rem 3rem" }}>
+              <div style={{ fontFamily: "var(--font-sans)", fontSize: "10px", fontWeight: 700, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--gold3)", marginBottom: "0.4rem" }}>
+                {selDest.tag} · {selDest.location}
+              </div>
+              <h3 style={{ fontFamily: "var(--font-serif)", fontSize: "2rem", color: "var(--navy)", fontWeight: 400, marginBottom: "0.5rem" }}>{selDest.name}</h3>
+              <span className="gold-rule" style={{ marginBottom: "1.25rem" }}></span>
+              <p className="section-body" style={{ marginBottom: "2rem" }}>{selDest.desc}</p>
+              <p className="section-body" style={{ marginBottom: "2rem", fontSize: "12.5px", color: "var(--muted)" }}>{selDest.specs}</p>
+              <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
+                <button className="btn-primary" onClick={() => { setSelDest(null); setReserve(true); }}>Reserve a Stay</button>
+                <button className="btn-join" onClick={() => setSelDest(null)}>Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
 
-const rootElement = document.getElementById("root");
-if (rootElement) {
-  const root = ReactDOM.createRoot(rootElement);
-  root.render(<ArchitectureApp />);
-}
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(<App />);
