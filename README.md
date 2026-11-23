@@ -1,65 +1,62 @@
-# The Hill Serenity | Cinematic 3D Architecture & Luxury Sanctuary
+# The Hill Serenity — The Peaceful Homestay
 
-> **"Where Stone Breathes and Cedar Sings."**  
-> An award-winning, interactive 3D architectural website for **The Hill Serenity** in Chafi, South Gola Range, Nainital District, Uttarakhand (12 km from Kainchi Dham / Neem Karoli Baba Ashram).
+[![Live Public Website](https://img.shields.io/badge/Live_Website-Visit_Now-B5922C?style=for-the-badge&logo=google-chrome&logoColor=white)](https://devansh75008.github.io/the-hill-serenity/)
+[![GitHub Pages](https://img.shields.io/badge/GitHub_Pages-Active-success?style=for-the-badge&logo=github)](https://devansh75008.github.io/the-hill-serenity/)
 
----
-
-## 🌟 Interactive Experience & Design Stack
-
-Built with the modern interactive architectural web stack:
-- **React 18 & Tailwind CSS**: Component-driven architecture styled in dark, elegant obsidian (`#090E0C`), deep pine green, warm cream limestone (`#F5EFE3`), and alpine crimson red roof tiles (`#A83232`).
-- **GSAP 3.12 & ScrollTrigger**: Smooth scroll-controlled image zoom in/out, parallax layers, and text reveal choreography.
-- **Lenis Smooth Scroll**: Butter-smooth 60fps inertial scrolling across desktop and mobile.
-- **Three.js & Spline 3D Digital Twin**: Interactive 3D architectural viewer where visitors can orbit, rotate, and inspect the 3-floor building, 4 red gables, curved verandas, and sun terrace in 360 degrees.
-- **Kling AI Cinematic Video (`assets/kling-ai-property-cream-redroof.mp4`)**: AI-rendered 1080p looping video of the property in cream walls and red roof nestled in the golden-hour Kumaon pine hills, running seamlessly in the background as the user scrolls.
+> ### 🌐 **Live Public Frontend Link:**  
+> 👉 **[https://devansh75008.github.io/the-hill-serenity/](https://devansh75008.github.io/the-hill-serenity/)**
 
 ---
 
-## 🏛️ Website Sections Built
+## 🏔️ About The Sanctuary
 
-1. **Hero Section**:
-   - Cinematic fullscreen property visual with cream walls and red alpine roof dormers at golden hour.
-   - Animated staggered headline reveal with GSAP.
-   - Telemetry bar: Elevation (5,400 FT), Coordinates (`29.3735° N, 79.5804° E`), Proximity to Kainchi Dham (12 KM).
-2. **Our Vision**:
-   - Architectural philosophy: *"Architecture as a Sacred Dialogue with the Ridge"*.
-   - GSAP ScrollTrigger-controlled image zoom and parallax layering.
-   - Craft pillars: Native River Stone, 4 Alpine Gables, Passive Solar Thermal Design.
-3. **Our Process ("Brick by Brick, Floor by Floor")**:
-   - Inspired by viral architectural construction evolutions:
-     - **Stage 01**: *Excavation & River Stone Foundation* (`assets/process-stage1-foundation.jpg`)
-     - **Stage 02**: *Structural Timber & 4 Alpine Gables* (`assets/process-stage2-construction.jpg`)
-     - **Stage 03**: *Cedar Interiors & Panoramic Glazing* (`assets/process-stage3-interiors.jpg`)
-     - **Stage 04**: *The Completed Sanctuary in Cream & Red Roof* (`assets/process-stage4-completed.jpg`)
-   - Interactive milestone switcher with detailed engineering specifications.
-4. **3D Digital Twin (Interactive 3D Model)**:
-   - Full 360° mouse-drag and touch-orbit 3D canvas showing the 3 storeys, 4 red gabled dormers, second-level cafe sun terrace with umbrella, and curved suite balconies.
-5. **Projects Portfolio**:
-   - Interactive showcase of luxury Himalayan commissions (The Hill Serenity Chafi, Mukteshwar Ridge Chalet, Sattal Lakeview Glass Villa, Chafi Valley River Homestead).
-   - Case study inspection modal.
-6. **About Us**:
-   - Architectural pedigree, sustainable Kumaon stonecraft, zero plastic, and local artisan empowerment.
-7. **Contact & Commission**:
-   - Dark-mode luxury architectural commission and reservation enquiry form with instant WhatsApp link generator and email dispatch.
-8. **Ambient Video & Sound Controller**:
-   - Video motion play/pause.
-   - Real-time Himalayan mountain breeze & pine wind synthesizer via Web Audio API.
+> *"Where Stone Breathes and Cedar Sings."*
+
+**The Hill Serenity** is a handcrafted 3-storey alpine sanctuary in Chafi, South Gola Range, Nainital District, Uttarakhand (12 km from sacred **Kainchi Dham / Neem Karoli Baba Ashram**). Perched at 5,400 ft altitude amidst old-growth pine forests and murmuring riverbanks of the Kalsa river, the property combines traditional hill stone architecture with quiet five-star luxury homestay hospitality.
 
 ---
 
-## 📍 Location & Verification
+## 🌟 Key Website Features
 
-- **Google Maps Pin**: [https://maps.app.goo.gl/3wiknEp5PKnJ9Vbb9](https://maps.app.goo.gl/3wiknEp5PKnJ9Vbb9)
-- **Coordinates**: `29.3735° N, 79.5804° E` (South Gola Range, Village Chafi, Near Kalsa River Bridge, Nainital District, Uttarakhand).
+### 1. 🏛️ Taj Hotels-Inspired Luxury Design
+- High-end palette: Royal Navy (`#1C2B3A`), Warm Ivory (`#FAF8F5`), and Brushed Himalayan Gold (`#B5922C`).
+- Atmospheric misty dusk facade visual featuring the 4 crimson red roof gables, round attic ocular windows, and warm illuminated curved suite balconies.
+
+### 2. 🛏️ Homestay Marketing Pillars (`#homestay`)
+- **The Rooms & Suites**: Fragrant deodar cedar woodwork, acoustic double-glazing, underfloor hydronic heating, and private curved verandas framing 270° valley views.
+- **The Nature & Wilderness**: 5,400 ft elevation, doorstep river trails along the Kalsa stream, forest bathing, and zero light/air pollution for stargazing.
+- **The Homestay Experience**: Authentic farm-to-table Kumaoni slow food, 2nd-floor sunset cafe terrace, starlit cedar bonfires, and daily shuttle to Kainchi Dham.
+
+### 3. 📍 Nearby Excursions & Distances (`#nearby`)
+Interactive guide with authentic imagery, exact driving distances, and travel times:
+- **Kainchi Dham (Neem Karoli Baba Ashram)** — 12 km · 25 mins
+- **Bhimtal Lake & Island Aquarium** — 8 km · 15 mins
+- **Sattal (Seven Interconnected Lakes)** — 10 km · 20 mins
+- **Ghorakhal Golu Devta Mandir** — 11 km · 20 mins
+- **Nainital (Naini Lake & Mall Road)** — 18 km · 35 mins
+- **Naukuchiatal (Nine-Cornered Lake)** — 12 km · 20 mins
+- **Mukteshwar Ridge & Chauli Ki Jali** — 28 km · 55 mins
+- **Chafi Kalsa River Trail & Cascades** — 1.2 km · 10 mins (Walking distance)
+
+### 4. 📅 Interactive Luxury Booking Strip
+- **In-Page Calendar Picker**: Dual-date selection with stay duration calculation (`1N`, `2N`, `Weekend`).
+- **Room & Guest Configuration**: Live popover selector with capacity checks.
+
+### 5. 💬 Reservation & Contact Verification
+- **WhatsApp & Gmail Verification**: Real-time phone OTP simulator and one-click Gmail authentication.
+- **Room Allocation Policy**: Strictly enforces **maximum 3 guests per room** (auto-allocates additional suites when party size increases).
+- **Direct Concierge Dispatch**: Routes enquiries securely to WhatsApp concierge without exposing contact numbers in public code.
 
 ---
 
-## 🚀 Live Deployment & GitHub Sync
+## 🗺️ Location & Contact
 
-- **GitHub Repository**: [https://github.com/devansh75008/the-hill-serenity](https://github.com/devansh75008/the-hill-serenity)
-- **Live Website (GitHub Pages)**: [https://devansh75008.github.io/the-hill-serenity/](https://devansh75008.github.io/the-hill-serenity/)
+- **Address**: South Gola Range, Village Chafi, Near Kalsa River Bridge, Bhowali Tehsil, Nainital, Uttarakhand 263136
+- **Elevation**: 5,400 FT
+- **Proximity**: 12 km from Kainchi Dham
+- **Google Maps**: [https://maps.app.goo.gl/3wiknEp5PKnJ9Vbb9](https://maps.app.goo.gl/3wiknEp5PKnJ9Vbb9)
+- **Live Website**: [https://devansh75008.github.io/the-hill-serenity/](https://devansh75008.github.io/the-hill-serenity/)
 
 ---
 
-© The Hill Serenity Architecture. All rights reserved.
+© The Hill Serenity Homestay. All rights reserved.
